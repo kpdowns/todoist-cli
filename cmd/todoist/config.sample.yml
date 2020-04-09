@@ -1,0 +1,9 @@
+client:
+    todoist_url: "https://todoist.com"
+    client_id: ""
+    client_secret: ""
+    required_permissions: "data:read_write,data:delete,project:delete"
+    app_service_url: "http://127.0.0.1:8123"
+    oauth_redirect_url: "http://127.0.0.1:8123/oauth/access_token"
+auth:
+    access_token: ""

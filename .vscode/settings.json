@@ -1,0 +1,7 @@
+{
+    "go.useCodeSnippetsOnFunctionSuggest": true,
+    "go.lintTool": "revive",
+    "go.lintFlags": ["-config=${workspaceFolder}/revive-config.toml"],
+    "go.useLanguageServer": false,
+    "go.buildOnSave": "workspace"
+}

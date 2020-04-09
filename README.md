@@ -32,5 +32,5 @@ This will create an executable that can be shipped with a version of the `config
 In order to run the tests for the Todoist-cli, you can run the following command in the root directory.
 
 ```
-go test
+go test ./...
 ```

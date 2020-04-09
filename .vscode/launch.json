@@ -9,9 +9,9 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/todoist/todoist-cli.go",
+            "program": "${workspaceFolder}",
             "env": {},
-            "args": ["help"]
+            "args": ["authenticate"]
         }
     ]
 }

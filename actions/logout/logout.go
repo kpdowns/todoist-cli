@@ -33,6 +33,7 @@ func NewLogoutCommand(config *config.TodoistCliConfiguration, outputStream io.Wr
 		Use:   "logout",
 		Short: "Logout of Todoist.com",
 		Long:  "Logout of Todoist.com by clearing saved access tokens and revoking access",
+		Args:  cobra.NoArgs,
 		Run: func(command *cobra.Command, args []string) {
 			err := execute(dependencies)
 			if err != nil {

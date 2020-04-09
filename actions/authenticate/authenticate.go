@@ -47,6 +47,7 @@ func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream
 		Use:   "authenticate",
 		Short: "Start the authentication process against Todoist.com",
 		Long:  "Starts the Oauth login flow on Todoist.com which will allow Todoist-cli to access your tasks and projects on Todoist.com",
+		Args:  cobra.NoArgs,
 		Run: func(command *cobra.Command, args []string) {
 			authenticationFunction := startTemporaryServerToListenForResponse
 			err := execute(dependencies, authenticationFunction)

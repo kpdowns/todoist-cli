@@ -3,21 +3,25 @@ package config
 import "testing"
 
 func TestIfAccessTokenIsSetThenIsAlreadyAuthenticated(t *testing.T) {
-	authenticationConfiguration := &AuthenticationConfiguration{
-		AccessToken: "access-token",
+	todoistCliConfiguration := &TodoistCliConfiguration{
+		Authentication: AuthenticationConfiguration{
+			AccessToken: "access-token",
+		},
 	}
 
-	if !authenticationConfiguration.IsAuthenticated() {
+	if !todoistCliConfiguration.IsAuthenticated() {
 		t.Error("If the access token is set on the authentication configuration, then the todoist-cli should be authenticated")
 	}
 }
 
 func TestIfAccessTokenIsNotSetThenTheTodoistCliIsNotAuthenticated(t *testing.T) {
-	authenticationConfiguration := &AuthenticationConfiguration{
-		AccessToken: "",
+	todoistCliConfiguration := &TodoistCliConfiguration{
+		Authentication: AuthenticationConfiguration{
+			AccessToken: "",
+		},
 	}
 
-	if authenticationConfiguration.IsAuthenticated() {
+	if todoistCliConfiguration.IsAuthenticated() {
 		t.Error("If the access token is not set on the authentication configuration, then the todoist-cli should not be authenticated")
 	}
 }

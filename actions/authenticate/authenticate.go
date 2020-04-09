@@ -4,30 +4,43 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
+	"net/http"
+	"sync"
+
+	"github.com/kpdowns/todoist-cli/todoist"
 
 	"github.com/beevik/guid"
+	"github.com/kpdowns/todoist-cli/actions/authenticate/types"
 	"github.com/kpdowns/todoist-cli/config"
 	"github.com/spf13/cobra"
 )
 
 const (
-	oauthInitiationText = "To authenticate todoist-cli, please navigate to %s"
+	oauthInitiationText       = "To authenticate todoist-cli, please navigate to %s"
+	successfullyAuthenticated = "Successfully authenticated"
 
-	errorAlreadyAuthenticatedText = "The todoist-cli is already authenticated"
+	errorAlreadyAuthenticatedText        = "The todoist-cli is already authenticated"
+	errorInvalidTokenReturnedFromTodoist = "Authentication failed, no access token was returned"
+	errorAuthenticationRejected          = "The authentication request was rejected"
+	errorPotentialCsrfAttack             = "Potential CSRF, the state provided to Todoist did not match what was returned"
+	errorNoAuthCodeReceived              = "No authorization code was received"
 )
 
 type dependencies struct {
 	config       *config.TodoistCliConfiguration
 	outputStream io.Writer
 	guid         string
+	api          todoist.API
 }
 
 // NewAuthenticateCommand creates a new instance of the authentication command
-func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream io.Writer) *cobra.Command {
+func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, api todoist.API) *cobra.Command {
 	var dependencies = &dependencies{
 		config:       config,
 		outputStream: outputStream,
 		guid:         guid.NewString(),
+		api:          api,
 	}
 
 	var authenticateCommand = &cobra.Command{
@@ -35,7 +48,8 @@ func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream
 		Short: "Start the authentication process against Todoist.com",
 		Long:  "Starts the Oauth login flow on Todoist.com which will allow Todoist-cli to access your tasks and projects on Todoist.com",
 		Run: func(command *cobra.Command, args []string) {
-			err := execute(command, args, dependencies)
+			authenticationFunction := startTemporaryServerToListenForResponse
+			err := execute(dependencies, authenticationFunction)
 			if err != nil {
 				fmt.Fprintln(outputStream, err.Error())
 			}
@@ -45,8 +59,8 @@ func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream
 	return authenticateCommand
 }
 
-func execute(command *cobra.Command, args []string, dependencies *dependencies) error {
-	if dependencies.config.Authentication.IsAuthenticated() {
+func execute(dependencies *dependencies, authenticationFunction func(csrfGUID string) (*types.AuthenticationResponse, error)) error {
+	if dependencies.config.IsAuthenticated() {
 		return errors.New(errorAlreadyAuthenticatedText)
 	}
 
@@ -54,7 +68,89 @@ func execute(command *cobra.Command, args []string, dependencies *dependencies) 
 	promptText := fmt.Sprintf(oauthInitiationText, oauthInitiationURL)
 	fmt.Fprintln(dependencies.outputStream, promptText)
 
+	response, err := authenticationFunction(dependencies.guid)
+	if err != nil {
+		return err
+	}
+
+	if response.Code == "" {
+		return errors.New(errorNoAuthCodeReceived)
+	}
+
+	token, err := dependencies.api.GetAccessToken(response.Code)
+	if err != nil {
+		return err
+	}
+
+	dependencies.config.StoreAccessToken(token.AccessToken)
+	fmt.Fprintln(dependencies.outputStream, successfullyAuthenticated)
+
 	return nil
+}
+
+func startTemporaryServerToListenForResponse(csrfGUID string) (*types.AuthenticationResponse, error) {
+	var waitGroup = &sync.WaitGroup{}
+	waitGroup.Add(1)
+	var server = &http.Server{Addr: ":8123"}
+
+	var authenticationResponse types.AuthenticationResponse
+	var authenticationError error
+	http.HandleFunc("/oauth/access_token", func(w http.ResponseWriter, r *http.Request) {
+		response, err := handleOauthResponse(w, r, csrfGUID)
+		if err == nil {
+			authenticationResponse = *response
+		}
+
+		authenticationError = err
+		waitGroup.Done()
+	})
+
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("OauthFlow error: %v", err)
+		}
+	}()
+
+	waitGroup.Wait()
+	return &authenticationResponse, authenticationError
+}
+
+func handleOauthResponse(w http.ResponseWriter, r *http.Request, csrfGUID string) (*types.AuthenticationResponse, error) {
+	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Connection", "close")
+
+	queryParameters := r.URL.Query()
+	state := queryParameters.Get("state")
+	if state == "" {
+
+		return nil, errors.New(errorAuthenticationRejected)
+	}
+
+	if csrfGUID != state {
+		return nil, errors.New(errorPotentialCsrfAttack)
+	}
+
+	code := queryParameters.Get("code")
+	if code == "" {
+		return nil, errors.New(errorNoAuthCodeReceived)
+	}
+
+	const successfulResponseHTML = `
+		<html>
+			<body>
+				<p>
+					<b>Authentication successful</b>, you can safely close this page.
+				</p>
+			</body>
+		</html>
+	`
+
+	fmt.Fprint(w, successfulResponseHTML)
+
+	return &types.AuthenticationResponse{
+		Code: code,
+	}, nil
 }
 
 func generateOauthURL(config *config.TodoistCliConfiguration, guid string) string {

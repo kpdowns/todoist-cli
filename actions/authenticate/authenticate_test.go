@@ -2,13 +2,19 @@ package authenticate
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/beevik/guid"
+	"github.com/kpdowns/todoist-cli/actions/authenticate/types"
 	"github.com/kpdowns/todoist-cli/config"
 )
+
+var authenticationFunctionReturningEmptyObject = func(csrfGUID string) (*types.AuthenticationResponse, error) {
+	return &types.AuthenticationResponse{}, nil
+}
 
 func TestGeneratedOauthURLHasTheExpectedFormatFromValuesInConfiguration(t *testing.T) {
 	var (
@@ -57,7 +63,7 @@ func TestIfNotAlreadyAuthenticatedThenTheOauthUrlIsWrittenToTheConsoleSoThatTheU
 	expectedURL := generateOauthURL(configuration, guid)
 	textExpectedToBeWrittenToConsole := fmt.Sprintf(oauthInitiationText, expectedURL) + "\n"
 
-	execute(nil, nil, dependencies)
+	execute(dependencies, authenticationFunctionReturningEmptyObject)
 
 	textThatWasWrittenToConsole := mockOutputStream.String()
 	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
@@ -77,7 +83,7 @@ func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testin
 		}
 	)
 
-	err := execute(nil, nil, dependencies)
+	err := execute(dependencies, authenticationFunctionReturningEmptyObject)
 	if err == nil {
 		t.Errorf("If the todoist-cli is already authenticated, the authentication should not be allowed again until after the client has logged out")
 	}
@@ -86,10 +92,8 @@ func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testin
 func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturnedWhenExecutingCommand(t *testing.T) {
 	var (
 		configuration = &config.TodoistCliConfiguration{
-			Authentication: config.AuthenticationConfiguration{
-				AccessToken: "",
-			},
-			Client: config.ClientConfiguration{},
+			Authentication: config.AuthenticationConfiguration{},
+			Client:         config.ClientConfiguration{},
 		}
 		dependencies = &dependencies{
 			config:       configuration,
@@ -97,8 +101,49 @@ func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturne
 		}
 	)
 
-	err := execute(nil, nil, dependencies)
-	if err != nil && err.Error() != errorAlreadyAuthenticatedText {
+	err := execute(dependencies, authenticationFunctionReturningEmptyObject)
+	if err != nil && err.Error() == errorAlreadyAuthenticatedText {
 		t.Errorf("If the todoist-cli is not authenticated, then there should be no already authenticated error thrown when executing the command")
+	}
+}
+
+func TestIfErrorOccursAfterTheCallbackFromTodoistThenThatErrorIsReturned(t *testing.T) {
+	var (
+		configuration = &config.TodoistCliConfiguration{
+			Authentication: config.AuthenticationConfiguration{},
+			Client:         config.ClientConfiguration{},
+		}
+		dependencies = &dependencies{
+			config:       configuration,
+			outputStream: os.Stdout,
+		}
+	)
+
+	expectedError := errors.New("Error occurring during callback")
+	authenticationFunctionReturningAnError := func(csrfGUID string) (*types.AuthenticationResponse, error) {
+		return nil, expectedError
+	}
+
+	actualError := execute(dependencies, authenticationFunctionReturningAnError)
+
+	if actualError.Error() != expectedError.Error() {
+		t.Errorf("The error that we receive when listening for the callback from Todoist should be returned if it occurs")
+	}
+}
+func TestIfCodeWasNotReturnedFromTodoistThenAnErrorShouldBeReturned(t *testing.T) {
+	var (
+		configuration = &config.TodoistCliConfiguration{
+			Authentication: config.AuthenticationConfiguration{},
+			Client:         config.ClientConfiguration{},
+		}
+		dependencies = &dependencies{
+			config:       configuration,
+			outputStream: os.Stdout,
+		}
+	)
+
+	err := execute(dependencies, authenticationFunctionReturningEmptyObject)
+	if err.Error() != errorNoAuthCodeReceived {
+		t.Errorf("An error stating that no authentication code was received back from Todoist should be returned if we did not receive an authentication code")
 	}
 }

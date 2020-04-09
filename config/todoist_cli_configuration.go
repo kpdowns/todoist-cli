@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -61,8 +60,6 @@ func (todoistCliConfiguration *TodoistCliConfiguration) StoreAccessToken(accessT
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(string(configToWrite))
 
 	configFile, err := os.OpenFile("./config.yml", os.O_RDWR|os.O_CREATE, 0660)
 	if err != nil {

@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"os"
+
 	"github.com/kpdowns/todoist-cli/actions/authenticate"
 	"github.com/kpdowns/todoist-cli/config"
 	"github.com/spf13/cobra"
@@ -14,7 +16,9 @@ func Initialize(config *config.TodoistCliConfiguration) error {
 		Long:  "Todoist-CLI is a tool that allows you to interact with Todoist.com directly from the command line without using a browser.",
 	}
 
-	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config))
+	var outputStream = os.Stdout
+
+	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config, outputStream))
 
 	return rootCommand.Execute()
 }

@@ -10,23 +10,21 @@ import (
 
 func TestGeneratedOauthURLHasTheExpectedFormatFromValuesInConfiguration(t *testing.T) {
 	var (
-		guid                = guid.NewString()
-		clientConfiguration = &config.ClientConfiguration{
-			TodoistURL:          "url",
-			ClientID:            "clientId",
-			RequiredPermissions: "permissions",
-		}
-		authenticationConfiguration = &config.AuthenticationConfiguration{}
-		configuration               = &config.TodoistCliConfiguration{
-			Client:         *clientConfiguration,
-			Authentication: *authenticationConfiguration,
+		guid          = guid.NewString()
+		configuration = &config.TodoistCliConfiguration{
+			Client: config.ClientConfiguration{
+				TodoistURL:          "url",
+				ClientID:            "clientId",
+				RequiredPermissions: "permissions",
+			},
+			Authentication: config.AuthenticationConfiguration{},
 		}
 	)
 
 	expectedURL := fmt.Sprintf("%s/oauth/authorize?client_id=%s&scope=%s&state=%s",
-		clientConfiguration.TodoistURL,
-		clientConfiguration.ClientID,
-		clientConfiguration.RequiredPermissions,
+		configuration.Client.TodoistURL,
+		configuration.Client.ClientID,
+		configuration.Client.RequiredPermissions,
 		guid)
 	generatedOathURL := generateOauthURL(configuration, guid)
 

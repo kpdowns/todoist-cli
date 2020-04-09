@@ -44,3 +44,8 @@ func LoadConfiguration() (*TodoistCliConfiguration, error) {
 
 	return &config, nil
 }
+
+// IsAuthenticated checks whether the Todoist-cli is authenticated or not
+func (authenticationConfiguration *AuthenticationConfiguration) IsAuthenticated() bool {
+	return authenticationConfiguration.AccessToken != ""
+}

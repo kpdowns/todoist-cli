@@ -50,7 +50,7 @@ func TestIfCodeIsNotSetWhenAttemptingToSignInThenErrorOccurs(t *testing.T) {
 	}
 }
 
-func TestIfCodeIsSetWhenAttemptingToSignInAndApiReturnsNoErrorsThenNoErrorsAreReturned(t *testing.T) {
+func TestIfCodeIsSetWhenAttemptingToSignInAndApiReturnsNoErrorsThenNoErrorsAreReturnedAndAccessTokenIsSaved(t *testing.T) {
 	api := &mocks.MockAPI{
 		GetAccessTokenFunction: func(code string) (*responses.AccessToken, error) {
 			return &responses.AccessToken{AccessToken: "access-token"}, nil
@@ -64,5 +64,14 @@ func TestIfCodeIsSetWhenAttemptingToSignInAndApiReturnsNoErrorsThenNoErrorsAreRe
 	err := service.SignIn("test")
 	if err != nil {
 		t.Errorf("Expected no error to be returned because the mock api returned no errors")
+	}
+
+	isAuthenticated, err := service.IsAuthenticated()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if !isAuthenticated {
+		t.Errorf("Expected to be authenticated")
 	}
 }

@@ -5,24 +5,16 @@ import (
 	"testing"
 
 	"github.com/kpdowns/todoist-cli/mocks"
-
-	"github.com/kpdowns/todoist-cli/config"
 )
 
 func TestIfNotAuthenticatedThenLoggingOutThrowsAnError(t *testing.T) {
 	var (
 		mockOutputStream = &bytes.Buffer{}
-		configuration    = &config.TodoistCliConfiguration{
-			Client: config.ClientConfiguration{
-				TodoistURL:          "url",
-				ClientID:            "clientId",
-				RequiredPermissions: "permissions",
-			},
-			Authentication: config.AuthenticationConfiguration{},
-		}
-		dependencies = &dependencies{
+		dependencies     = &dependencies{
 			outputStream: mockOutputStream,
-			config:       configuration,
+			authenticationService: &mocks.MockAuthenticationService{
+				AccessToken: "",
+			},
 		}
 	)
 
@@ -35,21 +27,13 @@ func TestIfNotAuthenticatedThenLoggingOutThrowsAnError(t *testing.T) {
 func TestIfAuthenticatedAndRevokingAccessTokensReturnsNoErrorsThenNoErrorsAreReturned(t *testing.T) {
 	var (
 		mockOutputStream = &bytes.Buffer{}
-		configuration    = &config.TodoistCliConfiguration{
-			Client: config.ClientConfiguration{
-				TodoistURL:          "url",
-				ClientID:            "clientId",
-				RequiredPermissions: "permissions",
-			},
-			Authentication: config.AuthenticationConfiguration{
-				AccessToken: "access-token",
-			},
-		}
-		dependencies = &dependencies{
+		dependencies     = &dependencies{
 			outputStream: mockOutputStream,
-			config:       configuration,
 			api: &mocks.MockAPI{
 				RevokeAccessTokenFunction: func() error { return nil },
+			},
+			authenticationService: &mocks.MockAuthenticationService{
+				AccessToken: "access-token",
 			},
 		}
 	)

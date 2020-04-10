@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/kpdowns/todoist-cli/config"
 	"github.com/kpdowns/todoist-cli/todoist"
 	"github.com/spf13/cobra"
@@ -16,17 +17,19 @@ const (
 )
 
 type dependencies struct {
-	config       *config.TodoistCliConfiguration
-	outputStream io.Writer
-	api          todoist.API
+	config                *config.TodoistCliConfiguration
+	outputStream          io.Writer
+	api                   todoist.API
+	authenticationService authentication.Service
 }
 
 // NewLogoutCommand creates a new instance of the authentication command
-func NewLogoutCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, api todoist.API) *cobra.Command {
+func NewLogoutCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, api todoist.API, authenticationService authentication.Service) *cobra.Command {
 	var dependencies = &dependencies{
-		config:       config,
-		outputStream: outputStream,
-		api:          api,
+		config:                config,
+		outputStream:          outputStream,
+		api:                   api,
+		authenticationService: authenticationService,
 	}
 
 	var authenticateCommand = &cobra.Command{
@@ -46,7 +49,8 @@ func NewLogoutCommand(config *config.TodoistCliConfiguration, outputStream io.Wr
 }
 
 func execute(dependencies *dependencies) error {
-	if !dependencies.config.IsAuthenticated() {
+	isAuthenticated, _ := dependencies.authenticationService.IsAuthenticated()
+	if !isAuthenticated {
 		return errors.New(errorNotCurrentlyAuthenticated)
 	}
 
@@ -55,7 +59,7 @@ func execute(dependencies *dependencies) error {
 		return err
 	}
 
-	dependencies.config.StoreAccessToken("")
+	dependencies.authenticationService.DeleteAccessToken()
 	fmt.Fprintln(dependencies.outputStream, successfullyLoggedOut)
 
 	return nil

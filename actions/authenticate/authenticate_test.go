@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/kpdowns/todoist-cli/mocks"
+
 	"github.com/beevik/guid"
 	"github.com/kpdowns/todoist-cli/actions/authenticate/types"
 	"github.com/kpdowns/todoist-cli/config"
@@ -25,7 +27,6 @@ func TestGeneratedOauthURLHasTheExpectedFormatFromValuesInConfiguration(t *testi
 				ClientID:            "clientId",
 				RequiredPermissions: "permissions",
 			},
-			Authentication: config.AuthenticationConfiguration{},
 		}
 	)
 
@@ -51,12 +52,12 @@ func TestIfNotAlreadyAuthenticatedThenTheOauthUrlIsWrittenToTheConsoleSoThatTheU
 				ClientID:            "clientId",
 				RequiredPermissions: "permissions",
 			},
-			Authentication: config.AuthenticationConfiguration{},
 		}
 		dependencies = &dependencies{
-			outputStream: mockOutputStream,
-			config:       configuration,
-			guid:         guid,
+			outputStream:          mockOutputStream,
+			config:                configuration,
+			guid:                  guid,
+			authenticationService: &mocks.MockAuthenticationService{},
 		}
 	)
 
@@ -73,13 +74,10 @@ func TestIfNotAlreadyAuthenticatedThenTheOauthUrlIsWrittenToTheConsoleSoThatTheU
 
 func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testing.T) {
 	var (
-		configuration = &config.TodoistCliConfiguration{
-			Authentication: config.AuthenticationConfiguration{
+		dependencies = &dependencies{
+			authenticationService: &mocks.MockAuthenticationService{
 				AccessToken: "access-token",
 			},
-		}
-		dependencies = &dependencies{
-			config: configuration,
 		}
 	)
 
@@ -92,12 +90,14 @@ func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testin
 func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturnedWhenExecutingCommand(t *testing.T) {
 	var (
 		configuration = &config.TodoistCliConfiguration{
-			Authentication: config.AuthenticationConfiguration{},
-			Client:         config.ClientConfiguration{},
+			Client: config.ClientConfiguration{},
 		}
 		dependencies = &dependencies{
 			config:       configuration,
 			outputStream: os.Stdout,
+			authenticationService: &mocks.MockAuthenticationService{
+				AccessToken: "",
+			},
 		}
 	)
 
@@ -110,12 +110,12 @@ func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturne
 func TestIfErrorOccursAfterTheCallbackFromTodoistThenThatErrorIsReturned(t *testing.T) {
 	var (
 		configuration = &config.TodoistCliConfiguration{
-			Authentication: config.AuthenticationConfiguration{},
-			Client:         config.ClientConfiguration{},
+			Client: config.ClientConfiguration{},
 		}
 		dependencies = &dependencies{
-			config:       configuration,
-			outputStream: os.Stdout,
+			config:                configuration,
+			outputStream:          os.Stdout,
+			authenticationService: &mocks.MockAuthenticationService{},
 		}
 	)
 
@@ -133,12 +133,12 @@ func TestIfErrorOccursAfterTheCallbackFromTodoistThenThatErrorIsReturned(t *test
 func TestIfCodeWasNotReturnedFromTodoistThenAnErrorShouldBeReturned(t *testing.T) {
 	var (
 		configuration = &config.TodoistCliConfiguration{
-			Authentication: config.AuthenticationConfiguration{},
-			Client:         config.ClientConfiguration{},
+			Client: config.ClientConfiguration{},
 		}
 		dependencies = &dependencies{
-			config:       configuration,
-			outputStream: os.Stdout,
+			config:                configuration,
+			outputStream:          os.Stdout,
+			authenticationService: &mocks.MockAuthenticationService{},
 		}
 	)
 

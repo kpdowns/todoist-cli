@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/kpdowns/todoist-cli/authentication"
+
 	"github.com/kpdowns/todoist-cli/todoist"
 
 	"github.com/beevik/guid"
@@ -28,19 +30,21 @@ const (
 )
 
 type dependencies struct {
-	config       *config.TodoistCliConfiguration
-	outputStream io.Writer
-	guid         string
-	api          todoist.API
+	config                *config.TodoistCliConfiguration
+	outputStream          io.Writer
+	guid                  string
+	api                   todoist.API
+	authenticationService authentication.Service
 }
 
 // NewAuthenticateCommand creates a new instance of the authentication command
-func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, api todoist.API) *cobra.Command {
+func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, api todoist.API, authenticationService authentication.Service) *cobra.Command {
 	var dependencies = &dependencies{
-		config:       config,
-		outputStream: outputStream,
-		guid:         guid.NewString(),
-		api:          api,
+		config:                config,
+		outputStream:          outputStream,
+		guid:                  guid.NewString(),
+		api:                   api,
+		authenticationService: authenticationService,
 	}
 
 	var authenticateCommand = &cobra.Command{
@@ -61,8 +65,13 @@ func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream
 }
 
 func execute(dependencies *dependencies, authenticationFunction func(csrfGUID string) (*types.AuthenticationResponse, error)) error {
-	if dependencies.config.IsAuthenticated() {
+	isAuthenticated, err := dependencies.authenticationService.IsAuthenticated()
+	if isAuthenticated {
 		return errors.New(errorAlreadyAuthenticatedText)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	oauthInitiationURL := generateOauthURL(dependencies.config, dependencies.guid)
@@ -83,7 +92,11 @@ func execute(dependencies *dependencies, authenticationFunction func(csrfGUID st
 		return err
 	}
 
-	dependencies.config.StoreAccessToken(token.AccessToken)
+	err = dependencies.authenticationService.SaveAccessToken(token.AccessToken)
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintln(dependencies.outputStream, successfullyAuthenticated)
 
 	return nil

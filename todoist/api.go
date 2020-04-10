@@ -15,7 +15,7 @@ import (
 // API provides functions for interacting with the Todoist API
 type API interface {
 	GetAccessToken(code string) (*responses.AccessToken, error)
-	RevokeAccessToken() error
+	RevokeAccessToken(accessToken string) error
 }
 
 type api struct {
@@ -62,13 +62,13 @@ func (a *api) GetAccessToken(code string) (*responses.AccessToken, error) {
 }
 
 // RevokeAccessToken revokes the current access token effectively logging the user out
-func (a *api) RevokeAccessToken() error {
+func (a *api) RevokeAccessToken(accessToken string) error {
 	revokeAccessTokenURL := fmt.Sprintf("%s/sync/v8/access_tokens/revoke", a.config.Client.TodoistURL)
 
 	requestBody := &requests.RevokeAccessToken{
 		ClientID:     a.config.Client.ClientID,
 		ClientSecret: a.config.Client.ClientSecret,
-		AccessToken:  a.config.Authentication.AccessToken,
+		AccessToken:  accessToken,
 	}
 
 	jsonRequestBody, err := json.Marshal(requestBody)

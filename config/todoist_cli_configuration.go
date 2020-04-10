@@ -16,15 +16,9 @@ type ClientConfiguration struct {
 	OauthRedirectURL    string `mapstructure:"oauth_redirect_url" yaml:"oauth_redirect_url"`
 }
 
-// AuthenticationConfiguration contains the configured authentication related properties
-type AuthenticationConfiguration struct {
-	AccessToken string `mapstructure:"access_token" yaml:"access_token"`
-}
-
 // TodoistCliConfiguration contains the configuration required for the TodoistCli to function
 type TodoistCliConfiguration struct {
-	Client         ClientConfiguration         `mapstructure:"client" yaml:"client"`
-	Authentication AuthenticationConfiguration `mapstructure:"auth" yaml:"auth"`
+	Client ClientConfiguration `mapstructure:"client" yaml:"client"`
 }
 
 // LoadConfiguration loads the configuration file located in ./config.yml, emits an error if the configuration file is not valid

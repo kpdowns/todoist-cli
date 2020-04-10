@@ -4,14 +4,14 @@ import "github.com/kpdowns/todoist-cli/todoist/responses"
 
 // MockAPI implements the TodoistAPI interface and wraps functions that can be set mocked
 type MockAPI struct {
-	RevokeAccessTokenFunction func() error
+	RevokeAccessTokenFunction func(accessToken string) error
 	GetAccessTokenFunction    func(code string) (*responses.AccessToken, error)
 }
 
 // RevokeAccessToken executes the function configured for revoking the TodoistAPI access token
-func (a *MockAPI) RevokeAccessToken() error {
+func (a *MockAPI) RevokeAccessToken(accessToken string) error {
 	if a.RevokeAccessTokenFunction != nil {
-		return a.RevokeAccessTokenFunction()
+		return a.RevokeAccessTokenFunction(accessToken)
 	}
 	panic("Method call used but not configured")
 }

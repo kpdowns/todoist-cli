@@ -54,7 +54,12 @@ func execute(dependencies *dependencies) error {
 		return errors.New(errorNotCurrentlyAuthenticated)
 	}
 
-	err := dependencies.api.RevokeAccessToken()
+	accessToken, err := dependencies.authenticationService.GetAccessToken()
+	if err != nil {
+		return err
+	}
+
+	err = dependencies.api.RevokeAccessToken(accessToken)
 	if err != nil {
 		return err
 	}

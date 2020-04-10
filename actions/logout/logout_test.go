@@ -30,7 +30,7 @@ func TestIfAuthenticatedAndRevokingAccessTokensReturnsNoErrorsThenNoErrorsAreRet
 		dependencies     = &dependencies{
 			outputStream: mockOutputStream,
 			api: &mocks.MockAPI{
-				RevokeAccessTokenFunction: func() error { return nil },
+				RevokeAccessTokenFunction: func(accessToken string) error { return nil },
 			},
 			authenticationService: &mocks.MockAuthenticationService{
 				AccessToken: "access-token",

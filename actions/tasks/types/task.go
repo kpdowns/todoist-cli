@@ -1,4 +1,4 @@
-package tasks
+package types
 
 import "fmt"
 
@@ -39,7 +39,7 @@ type TaskList []Task
 func (a TaskList) Len() int { return len(a) }
 
 func (a TaskList) Less(i, j int) bool {
-	isHigherInDayOrderList := a[i].DayOrder > a[j].DayOrder
+	isHigherInDayOrderList := a[i].DayOrder < a[j].DayOrder
 	return isHigherInDayOrderList
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sort"
 
+	"github.com/kpdowns/todoist-cli/actions/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
 
 	"github.com/kpdowns/todoist-cli/authentication"
@@ -12,7 +13,7 @@ import (
 
 // Service provides functionality to handle the access token used by the Todoist API
 type Service interface {
-	GetAllTasks() ([]Task, error)
+	GetAllTasks() ([]types.Task, error)
 }
 
 type service struct {
@@ -29,7 +30,7 @@ func NewService(api todoist.API, authenticationService authentication.Service) S
 }
 
 // GetAllTasks returns a list of tasks to do, sorted by day order
-func (s *service) GetAllTasks() ([]Task, error) {
+func (s *service) GetAllTasks() ([]types.Task, error) {
 	isAuthenticated, err := s.authenticationService.IsAuthenticated()
 	if err != nil {
 		return nil, err
@@ -48,9 +49,9 @@ func (s *service) GetAllTasks() ([]Task, error) {
 		return nil, err
 	}
 
-	var tasks TaskList
+	var tasks types.TaskList
 	for _, item := range syncResponse.Items {
-		newTask := Task{
+		newTask := types.Task{
 			Checked:   item.Checked,
 			Content:   item.Content,
 			DayOrder:  item.DayOrder,

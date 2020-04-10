@@ -4,6 +4,22 @@
 
 Todoist-CLI is a tool that allows you to interact with Todoist.com directly from the command line without using a browser.
 
+Please familiarize yourself with the planned functionality for the Todoist-cli (items that are struck through are completed):
+
+
+- ~~Authenticate againsts Todoist.com and save access token~~
+- ~~Revoking of access tokens from Todoist.com~~
+- Listing of tasks across all projects on Todoist.com
+- Listing of all projects on Todoist.com
+- Associating internal ids with Todoist tasks and projects to allow for easier management
+- Allow creation of projects
+- Allow deletion of projects
+- Allow creation of basic tasks (with no priority or defined project)
+- Allow creation of tasks with a user defined priority and project
+- Allow reprioritization of tasks & changing due dates
+- Allow flagging tasks as completed
+
+ 
 ## Getting started
 To get started developing the Todoist-cli please make sure that you have:
 

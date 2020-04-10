@@ -10,8 +10,6 @@ import (
 
 	"github.com/kpdowns/todoist-cli/authentication"
 
-	"github.com/kpdowns/todoist-cli/todoist"
-
 	"github.com/beevik/guid"
 	"github.com/kpdowns/todoist-cli/actions/authenticate/types"
 	"github.com/kpdowns/todoist-cli/config"
@@ -33,17 +31,15 @@ type dependencies struct {
 	config                *config.TodoistCliConfiguration
 	outputStream          io.Writer
 	guid                  string
-	api                   todoist.API
 	authenticationService authentication.Service
 }
 
 // NewAuthenticateCommand creates a new instance of the authentication command
-func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, api todoist.API, authenticationService authentication.Service) *cobra.Command {
+func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, authenticationService authentication.Service) *cobra.Command {
 	var dependencies = &dependencies{
 		config:                config,
 		outputStream:          outputStream,
 		guid:                  guid.NewString(),
-		api:                   api,
 		authenticationService: authenticationService,
 	}
 
@@ -85,16 +81,6 @@ func execute(dependencies *dependencies, authenticationFunction func(csrfGUID st
 
 	if response.Code == "" {
 		return errors.New(errorNoAuthCodeReceived)
-	}
-
-	token, err := dependencies.api.GetAccessToken(response.Code)
-	if err != nil {
-		return err
-	}
-
-	err = dependencies.authenticationService.SaveAccessToken(token.AccessToken)
-	if err != nil {
-		return err
 	}
 
 	fmt.Fprintln(dependencies.outputStream, successfullyAuthenticated)

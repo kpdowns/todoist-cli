@@ -29,10 +29,10 @@ func Initialize() error {
 
 	outputStream := os.Stdout
 	api := todoist.NewAPI(*config)
-	authenticationService := authentication.NewService()
+	authenticationService := authentication.NewService(api)
 
-	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config, outputStream, api, authenticationService))
-	rootCommand.AddCommand(logout.NewLogoutCommand(config, outputStream, api, authenticationService))
+	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config, outputStream, authenticationService))
+	rootCommand.AddCommand(logout.NewLogoutCommand(config, outputStream, authenticationService))
 
 	return rootCommand.Execute()
 }

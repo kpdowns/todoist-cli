@@ -2,24 +2,32 @@ package authentication
 
 import (
 	"bufio"
+	"errors"
 	"os"
+
+	"github.com/kpdowns/todoist-cli/todoist"
 )
 
 const authenticationFilePath = "./authentication.data"
+const errorNoCodeAvailableToSignInWith = "No code was provided while attempting to sign-in to the Todoist API"
 
 // Service provides functionality to handle the access token used by the Todoist API
 type Service interface {
 	IsAuthenticated() (bool, error)
 	GetAccessToken() (string, error)
-	SaveAccessToken(accessToken string) error
-	DeleteAccessToken() error
+	SignIn(code string) error
+	SignOut() error
 }
 
-type service struct{}
+type service struct {
+	api todoist.API
+}
 
 // NewService creates a new instance of the Authentication service
-func NewService() Service {
-	return &service{}
+func NewService(api todoist.API) Service {
+	return &service{
+		api: api,
+	}
 }
 
 // IsAuthenticated checks whether the Todoist-cli is authenticated or not
@@ -53,9 +61,13 @@ func (service *service) GetAccessToken() (string, error) {
 	return accessToken, nil
 }
 
-// UpdateAccessToken stores the access token to be used for API requests
-func (service *service) SaveAccessToken(accessToken string) error {
-	err := service.DeleteAccessToken()
+// SignIn signs into Todoist.com and stores the access token to be used for API requests
+func (service *service) SignIn(code string) error {
+	if code == "" {
+		return errors.New(errorNoCodeAvailableToSignInWith)
+	}
+
+	err := service.deleteAccessToken()
 	if err != nil {
 		return err
 	}
@@ -66,7 +78,12 @@ func (service *service) SaveAccessToken(accessToken string) error {
 	}
 	defer authenticationFile.Close()
 
-	_, err = authenticationFile.WriteString(accessToken)
+	token, err := service.api.GetAccessToken(code)
+	if err != nil {
+		return err
+	}
+
+	_, err = authenticationFile.WriteString(token.AccessToken)
 	if err != nil {
 		return err
 	}
@@ -74,8 +91,29 @@ func (service *service) SaveAccessToken(accessToken string) error {
 	return nil
 }
 
-// DeleteAccessToken deletes the currently stored access token
-func (service *service) DeleteAccessToken() error {
+// SignOut signs out of Todoist.com and deletes the stored access token
+func (service *service) SignOut() error {
+	authenticationFile, err := service.getAuthenticationFile()
+	if err != nil {
+		return err
+	}
+
+	defer authenticationFile.Close()
+
+	err = authenticationFile.Truncate(0)
+	if err != nil {
+		return err
+	}
+
+	_, err = authenticationFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *service) deleteAccessToken() error {
 	authenticationFile, err := service.getAuthenticationFile()
 	if err != nil {
 		return err

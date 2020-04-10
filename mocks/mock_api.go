@@ -13,7 +13,7 @@ func (a *MockAPI) RevokeAccessToken(accessToken string) error {
 	if a.RevokeAccessTokenFunction != nil {
 		return a.RevokeAccessTokenFunction(accessToken)
 	}
-	panic("Method call used but not configured")
+	panic("Method call RevokeAccessToken used but not configured")
 }
 
 // GetAccessToken executes the function configured for retrieving a TodoistAPI access token
@@ -21,5 +21,5 @@ func (a *MockAPI) GetAccessToken(code string) (*responses.AccessToken, error) {
 	if a.GetAccessTokenFunction != nil {
 		return a.GetAccessTokenFunction(code)
 	}
-	panic("Method call used but not configured")
+	panic("Method call GetAccessToken used but not configured")
 }

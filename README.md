@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/kpdowns/todoist-cli/workflows/Build/badge.svg?branch=master)
 
-Todoist-CLI is a tool that allows you to interact with Todoist.com directly from the command line without using a browser.
+Todoist-CLI is an **unofficial** tool that allows you to interact with Todoist.com directly from the command line without using a browser. The motivation for it's existence is as a learning tool for myself.
 
 Please familiarize yourself with the planned functionality for the Todoist-cli (items that are struck through are completed):
 

@@ -10,7 +10,6 @@ before_install:
   - go get -t -v ./...
 
 script:
-  - go build -a -v ./...
   - go test ./... -coverprofile=coverage.txt -covermode=atomic
 
 after_success:

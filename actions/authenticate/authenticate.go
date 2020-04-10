@@ -60,8 +60,8 @@ func NewAuthenticateCommand(config *config.TodoistCliConfiguration, outputStream
 	return authenticateCommand
 }
 
-func execute(dependencies *dependencies, authenticationFunction func(csrfGUID string) (*types.AuthenticationResponse, error)) error {
-	isAuthenticated, err := dependencies.authenticationService.IsAuthenticated()
+func execute(d *dependencies, authenticationFunction func(csrfGUID string) (*types.AuthenticationResponse, error)) error {
+	isAuthenticated, err := d.authenticationService.IsAuthenticated()
 	if isAuthenticated {
 		return errors.New(errorAlreadyAuthenticatedText)
 	}
@@ -70,11 +70,11 @@ func execute(dependencies *dependencies, authenticationFunction func(csrfGUID st
 		return err
 	}
 
-	oauthInitiationURL := generateOauthURL(dependencies.config, dependencies.guid)
+	oauthInitiationURL := generateOauthURL(d.config, d.guid)
 	promptText := fmt.Sprintf(oauthInitiationText, oauthInitiationURL)
-	fmt.Fprintln(dependencies.outputStream, promptText)
+	fmt.Fprintln(d.outputStream, promptText)
 
-	response, err := authenticationFunction(dependencies.guid)
+	response, err := authenticationFunction(d.guid)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,11 @@ func execute(dependencies *dependencies, authenticationFunction func(csrfGUID st
 		return errors.New(errorNoAuthCodeReceived)
 	}
 
-	fmt.Fprintln(dependencies.outputStream, successfullyAuthenticated)
+	err = d.authenticationService.SignIn(response.Code)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintln(d.outputStream, successfullyAuthenticated)
 
 	return nil
 }

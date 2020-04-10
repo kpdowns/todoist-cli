@@ -75,3 +75,30 @@ func TestIfCodeIsSetWhenAttemptingToSignInAndApiReturnsNoErrorsThenNoErrorsAreRe
 		t.Errorf("Expected to be authenticated")
 	}
 }
+
+func TestIfSigningOutAndNoErrorsAreRecievedFromTheApiThenTheAccessTokenIsRemoved(t *testing.T) {
+	api := &mocks.MockAPI{
+		RevokeAccessTokenFunction: func(accessToken string) error {
+			return nil
+		},
+	}
+	repository := &mocks.MockAuthenticationRepository{
+		AccessToken: "access-token",
+	}
+	service := NewService(api, repository)
+
+	isAuthenticated, err := service.IsAuthenticated()
+	if err != nil || !isAuthenticated {
+		t.Errorf("Expected to be authenticated because we haven't yet signed out")
+	}
+
+	err = service.SignOut()
+	if err != nil {
+		t.Errorf("Expected no errors, but received '%s'", err.Error())
+	}
+
+	isAuthenticated, err = service.IsAuthenticated()
+	if err != nil || isAuthenticated {
+		t.Errorf("Expected to not be authenticated because we have just signed out")
+	}
+}

@@ -36,7 +36,7 @@ func (s *service) IsAuthenticated() (bool, error) {
 		return false, err
 	}
 
-	isAccessTokenEmptyString := accessToken != ""
+	isAccessTokenEmptyString := accessToken == ""
 	if isAccessTokenEmptyString {
 		return false, nil
 	}

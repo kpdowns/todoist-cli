@@ -9,9 +9,7 @@ import (
 func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T) {
 	dependencies := &dependencies{
 		authenticationService: &mocks.MockAuthenticationService{
-			Repository: mocks.MockAuthenticationRepository{
-				AccessToken: "",
-			},
+			AuthenticatedStateToReturn: false,
 		},
 	}
 

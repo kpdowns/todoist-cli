@@ -76,9 +76,7 @@ func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testin
 	var (
 		dependencies = &dependencies{
 			authenticationService: &mocks.MockAuthenticationService{
-				Repository: mocks.MockAuthenticationRepository{
-					AccessToken: "access-token",
-				},
+				AuthenticatedStateToReturn: true,
 			},
 		}
 	)
@@ -98,9 +96,7 @@ func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturne
 			config:       configuration,
 			outputStream: os.Stdout,
 			authenticationService: &mocks.MockAuthenticationService{
-				Repository: mocks.MockAuthenticationRepository{
-					AccessToken: "",
-				},
+				AuthenticatedStateToReturn: false,
 			},
 		}
 	)
@@ -117,9 +113,11 @@ func TestIfErrorOccursAfterTheCallbackFromTodoistThenThatErrorIsReturned(t *test
 			Client: config.ClientConfiguration{},
 		}
 		dependencies = &dependencies{
-			config:                configuration,
-			outputStream:          os.Stdout,
-			authenticationService: &mocks.MockAuthenticationService{},
+			config:       configuration,
+			outputStream: os.Stdout,
+			authenticationService: &mocks.MockAuthenticationService{
+				AuthenticatedStateToReturn: false,
+			},
 		}
 	)
 

@@ -24,7 +24,6 @@ Please familiarize yourself with the planned functionality for the Todoist-cli (
 To get started developing the Todoist-cli please make sure that you have:
 
 - At least Go version 1.14 installed.
-- gcc installed and on path
 
 ### Configuration
 The Todoist-cli loads configuration files from the configuration files located in `./config.yml`. A sample configuration is provided in `./config.sample.yml`. Please update the sample configuration file and rename it to `config.yml` in order for the Todoist-cli to read it.

@@ -1,6 +1,6 @@
 # todoist-cli
 
-![build](https://travis-ci.com/kpdowns/todoist-cli.svg?branch=master) [![codecov](https://codecov.io/gh/kpdowns/todoist-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/kpdowns/todoist-cli)
+![build](https://travis-ci.com/kpdowns/todoist-cli.svg?branch=master) [![codecov](https://codecov.io/gh/kpdowns/todoist-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/kpdowns/todoist-cli) [![Go Report Card](https://goreportcard.com/badge/github.com/kpdowns/todoist-cli)](https://goreportcard.com/report/github.com/kpdowns/todoist-cli)
 
 Todoist-CLI is an **unofficial** tool that allows you to interact with Todoist.com directly from the command line without using a browser. The motivation for it's existence is as a learning tool for myself.
 

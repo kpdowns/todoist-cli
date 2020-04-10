@@ -42,16 +42,11 @@ func TestGivenAnAuthenticatedClientWhenThereAreNoTasksThenTextSayingThereAreNoTa
 	}
 	mockOutputStream := &bytes.Buffer{}
 
-	dependencies := &dependencies{
-		authenticationService: mockAuthenticationService,
-		taskService:           NewService(mockAPI, mockAuthenticationService),
-		outputStream:          mockOutputStream,
-	}
+	taskService := NewService(mockAPI, mockAuthenticationService)
 
-	err := execute(dependencies)
-	if err != nil {
-		t.Errorf("Expected no errors, but received '%s'", err.Error())
-	}
+	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
+
+	listTaskCommand.Run(listTaskCommand, []string{})
 
 	textExpectedToBeWrittenToConsole := noTasksMessage + "\n"
 	textThatWasWrittenToConsole := mockOutputStream.String()
@@ -87,16 +82,11 @@ func TestGivenAnAuthenticatedClientWhenThereAreTasksThenTheTasksAreWrittenToTheO
 	}
 	mockOutputStream := &bytes.Buffer{}
 
-	dependencies := &dependencies{
-		authenticationService: mockAuthenticationService,
-		taskService:           NewService(mockAPI, mockAuthenticationService),
-		outputStream:          mockOutputStream,
-	}
+	taskService := NewService(mockAPI, mockAuthenticationService)
 
-	err := execute(dependencies)
-	if err != nil {
-		t.Errorf("Expected no errors, but received '%s'", err.Error())
-	}
+	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
+
+	listTaskCommand.Run(listTaskCommand, []string{})
 
 	textExpectedToBeWrittenToConsole := taskToBeWritten.AsString() + "\n"
 	textThatWasWrittenToConsole := mockOutputStream.String()

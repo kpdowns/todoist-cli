@@ -12,10 +12,17 @@ import (
 	"github.com/kpdowns/todoist-cli/todoist/responses"
 )
 
+const (
+	errorRetrievingAccessToken = "Error occurred while retrieving the access token, code was %d\n"
+	errorRevokingAccessToken   = "Failed to revoke access token, response status was %d\n"
+	errorSyncQuery             = "Error executing sync query, code was %d\n"
+)
+
 // API provides functions for interacting with the Todoist API
 type API interface {
 	GetAccessToken(code string) (*responses.AccessToken, error)
 	RevokeAccessToken(accessToken string) error
+	ExecuteSyncQuery(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error)
 }
 
 type api struct {
@@ -46,7 +53,7 @@ func (a *api) GetAccessToken(code string) (*responses.AccessToken, error) {
 	}
 
 	if response.StatusCode != 200 {
-		errorMessage := fmt.Sprintf("Error occurred while retrieving the access token, code was %d\n", response.StatusCode)
+		errorMessage := fmt.Sprintf(errorRetrievingAccessToken, response.StatusCode)
 		return nil, errors.New(errorMessage)
 	}
 
@@ -83,9 +90,34 @@ func (a *api) RevokeAccessToken(accessToken string) error {
 
 	defer response.Body.Close()
 	if response.StatusCode != 204 {
-		errorMessage := fmt.Sprintf("Failed to revoke access token, response status was %d\n", response.StatusCode)
+		errorMessage := fmt.Sprintf(errorRevokingAccessToken, response.StatusCode)
 		return errors.New(errorMessage)
 	}
 
 	return nil
+}
+
+func (a *api) ExecuteSyncQuery(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error) {
+	syncRequestURL := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, syncQuery.ToQueryString())
+
+	var buffer []byte
+	response, err := http.Post(syncRequestURL, "application/json", bytes.NewBuffer(buffer))
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		errorMessage := fmt.Sprintf(errorSyncQuery, response.StatusCode)
+		return nil, errors.New(errorMessage)
+	}
+
+	defer response.Body.Close()
+
+	var syncResponse responses.SyncQueryResponse
+	err = json.NewDecoder(response.Body).Decode(&syncResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &syncResponse, nil
 }

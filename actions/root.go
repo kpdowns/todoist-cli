@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/kpdowns/todoist-cli/actions/logout"
+	"github.com/kpdowns/todoist-cli/actions/tasks"
 	"github.com/kpdowns/todoist-cli/authentication"
 
 	"github.com/kpdowns/todoist-cli/actions/authenticate"
@@ -35,6 +36,7 @@ func Initialize() error {
 
 	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config, outputStream, authenticationService))
 	rootCommand.AddCommand(logout.NewLogoutCommand(config, outputStream, authenticationService))
+	rootCommand.AddCommand(tasks.NewTasksCommand(api, outputStream, authenticationService))
 
 	return rootCommand.Execute()
 }

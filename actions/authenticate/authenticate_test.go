@@ -76,7 +76,9 @@ func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testin
 	var (
 		dependencies = &dependencies{
 			authenticationService: &mocks.MockAuthenticationService{
-				AccessToken: "access-token",
+				Repository: mocks.MockAuthenticationRepository{
+					AccessToken: "access-token",
+				},
 			},
 		}
 	)
@@ -96,14 +98,16 @@ func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturne
 			config:       configuration,
 			outputStream: os.Stdout,
 			authenticationService: &mocks.MockAuthenticationService{
-				AccessToken: "",
+				Repository: mocks.MockAuthenticationRepository{
+					AccessToken: "",
+				},
 			},
 		}
 	)
 
 	err := execute(dependencies, authenticationFunctionReturningEmptyObject)
 	if err != nil && err.Error() == errorAlreadyAuthenticatedText {
-		t.Errorf("If the todoist-cli is not authenticated, then there should be no already authenticated error thrown when executing the command")
+		t.Errorf("Expected '%s', but got '%s'", errorAlreadyAuthenticatedText, err.Error())
 	}
 }
 

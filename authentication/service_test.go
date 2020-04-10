@@ -9,7 +9,9 @@ import (
 
 func TestIfAccessTokenIsSetThenIsAlreadyAuthenticated(t *testing.T) {
 	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AccessToken: "access-token",
+		Repository: mocks.MockAuthenticationRepository{
+			AccessToken: "test",
+		},
 	}
 
 	isAuthenticated, _ := mockAuthenticationService.IsAuthenticated()
@@ -20,7 +22,9 @@ func TestIfAccessTokenIsSetThenIsAlreadyAuthenticated(t *testing.T) {
 
 func TestIfAccessTokenIsNotSetThenTheTodoistCliIsNotAuthenticated(t *testing.T) {
 	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AccessToken: "",
+		Repository: mocks.MockAuthenticationRepository{
+			AccessToken: "",
+		},
 	}
 
 	isAuthenticated, _ := mockAuthenticationService.IsAuthenticated()
@@ -31,7 +35,10 @@ func TestIfAccessTokenIsNotSetThenTheTodoistCliIsNotAuthenticated(t *testing.T) 
 
 func TestIfCodeIsNotSetWhenAttemptingToSignInThenErrorOccurs(t *testing.T) {
 	api := &mocks.MockAPI{}
-	service := NewService(api)
+	repository := &mocks.MockAuthenticationRepository{
+		AccessToken: "",
+	}
+	service := NewService(api, repository)
 
 	err := service.SignIn("")
 	if err == nil {
@@ -49,7 +56,10 @@ func TestIfCodeIsSetWhenAttemptingToSignInAndApiReturnsNoErrorsThenNoErrorsAreRe
 			return &responses.AccessToken{AccessToken: "access-token"}, nil
 		},
 	}
-	service := NewService(api)
+	repository := &mocks.MockAuthenticationRepository{
+		AccessToken: "",
+	}
+	service := NewService(api, repository)
 
 	err := service.SignIn("test")
 	if err != nil {

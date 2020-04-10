@@ -13,7 +13,9 @@ func TestIfNotAuthenticatedThenLoggingOutThrowsAnError(t *testing.T) {
 		dependencies     = &dependencies{
 			outputStream: mockOutputStream,
 			authenticationService: &mocks.MockAuthenticationService{
-				AccessToken: "",
+				Repository: mocks.MockAuthenticationRepository{
+					AccessToken: "",
+				},
 			},
 		}
 	)
@@ -30,7 +32,9 @@ func TestIfAuthenticatedAndRevokingAccessTokensReturnsNoErrorsThenNoErrorsAreRet
 		dependencies     = &dependencies{
 			outputStream: mockOutputStream,
 			authenticationService: &mocks.MockAuthenticationService{
-				AccessToken: "access-token",
+				Repository: mocks.MockAuthenticationRepository{
+					AccessToken: "access-token",
+				},
 				API: &mocks.MockAPI{
 					RevokeAccessTokenFunction: func(accessToken string) error { return nil },
 				},

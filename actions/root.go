@@ -29,7 +29,9 @@ func Initialize() error {
 
 	outputStream := os.Stdout
 	api := todoist.NewAPI(*config)
-	authenticationService := authentication.NewService(api)
+
+	authenticationRepository := authentication.NewAuthenticationRepository()
+	authenticationService := authentication.NewService(api, authenticationRepository)
 
 	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config, outputStream, authenticationService))
 	rootCommand.AddCommand(logout.NewLogoutCommand(config, outputStream, authenticationService))

@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Task is an item to do
 type Task struct {
@@ -8,7 +11,7 @@ type Task struct {
 	DayOrder  int32
 	Checked   int16
 	Content   string
-	DueDate   string
+	DueDate   time.Time
 	Priority  int16
 }
 
@@ -32,15 +35,3 @@ func (i *Task) AsString() string {
 		i.Content,
 	)
 }
-
-// TaskList is a list of unordered tasks
-type TaskList []Task
-
-func (a TaskList) Len() int { return len(a) }
-
-func (a TaskList) Less(i, j int) bool {
-	isHigherInDayOrderList := a[i].DayOrder < a[j].DayOrder
-	return isHigherInDayOrderList
-}
-
-func (a TaskList) Swap(i, j int) { a[i], a[j] = a[j], a[i] }

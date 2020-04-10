@@ -2,7 +2,7 @@ package tasks
 
 import (
 	"errors"
-	"sort"
+	"time"
 
 	"github.com/kpdowns/todoist-cli/actions/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
@@ -49,20 +49,25 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 		return nil, err
 	}
 
+	dateFormat := "2006-01-02"
 	var tasks types.TaskList
 	for _, item := range syncResponse.Items {
+		dueDate, err := time.Parse(dateFormat, item.Due.DateString)
+		if err != nil {
+			dueDate = time.Now()
+		}
+
 		newTask := types.Task{
 			Checked:   item.Checked,
 			Content:   item.Content,
 			DayOrder:  item.DayOrder,
-			DueDate:   item.Due.DateString,
+			DueDate:   dueDate,
 			Priority:  item.Priority,
 			TodoistID: item.TodoistID,
 		}
 		tasks = append(tasks, newTask)
 	}
 
-	sort.Sort(tasks)
-
-	return tasks, nil
+	sortedTasks := tasks.SortByDueDateThenSortByPriority()
+	return sortedTasks, nil
 }

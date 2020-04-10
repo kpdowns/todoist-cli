@@ -23,7 +23,7 @@ For convenience, a launch configuration for Visual Studio Code is provided that 
 To build an executable version that can be shipped you can run the following command from the root directory.
 
 ```
-go build
+go build -ldflags="-s -w"
 ```
 
 This will create an executable that can be shipped with a version of the `config.yml` file so that your application can be run.

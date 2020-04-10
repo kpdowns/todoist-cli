@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"text/tabwriter"
 
 	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/spf13/cobra"
+)
+
+const (
+	noTasksMessage = "No tasks to complete across any of your projects"
 )
 
 type dependencies struct {
@@ -51,7 +54,11 @@ func execute(d *dependencies) error {
 		return err
 	}
 
-	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
+	if len(tasks) == 0 {
+		fmt.Fprintln(d.outputStream, noTasksMessage)
+	}
+
+	writer := tabwriter.NewWriter(d.outputStream, 0, 8, 1, '\t', 0)
 	for _, task := range tasks {
 		fmt.Fprintln(writer, task.AsString())
 	}

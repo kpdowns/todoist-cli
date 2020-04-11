@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/beevik/guid"
 	"github.com/kpdowns/todoist-cli/actions/logout"
 	"github.com/kpdowns/todoist-cli/actions/tasks"
 	"github.com/kpdowns/todoist-cli/authentication"
@@ -31,10 +32,11 @@ func Initialize() error {
 	outputStream := os.Stdout
 	api := todoist.NewAPI(*config)
 
+	authenticationServer := authentication.NewAuthenticationServer()
 	authenticationRepository := authentication.NewAuthenticationRepository()
-	authenticationService := authentication.NewService(api, authenticationRepository)
+	authenticationService := authentication.NewAuthenticationService(api, authenticationRepository, *config, authenticationServer)
 
-	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(config, outputStream, authenticationService))
+	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(outputStream, authenticationService, guid.NewString()))
 	rootCommand.AddCommand(logout.NewLogoutCommand(config, outputStream, authenticationService))
 	rootCommand.AddCommand(tasks.NewTasksCommand(api, outputStream, authenticationService))
 

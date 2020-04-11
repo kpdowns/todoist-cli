@@ -8,6 +8,7 @@ type MockAuthenticationService struct {
 	GetAccessTokenErrorToReturn  error
 	SignInErrorToReturn          error
 	SignOutErrorToReturn         error
+	OathURL                      string
 }
 
 // IsAuthenticated checks whether the Todoist-cli is authenticated or not by examining the in-memory access token
@@ -28,4 +29,9 @@ func (s *MockAuthenticationService) SignIn(code string) error {
 // SignOut resets the access token stored in-memory
 func (s *MockAuthenticationService) SignOut() error {
 	return s.SignOutErrorToReturn
+}
+
+// GetOauthURL returns the configured oauth url
+func (s *MockAuthenticationService) GetOauthURL(guid string) string {
+	return s.OathURL
 }

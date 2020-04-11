@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/beevik/guid"
 	"github.com/kpdowns/todoist-cli/actions/login"
@@ -29,10 +30,15 @@ func Initialize() error {
 		os.Exit(-1)
 	}
 
+	currentExecutablePath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		panic("Cannot determine the location todoist-cli is running from")
+	}
+
 	outputStream := os.Stdout
 	api := todoist.NewAPI(*config)
 
-	authenticationFilePath := "./authentication.data"
+	authenticationFilePath := fmt.Sprintf("%s/authentication.data", currentExecutablePath)
 	authenticationServer := authentication.NewAuthenticationServer()
 	authenticationRepository := authentication.NewAuthenticationRepository(storage.NewFile(authenticationFilePath))
 	authenticationService := authentication.NewAuthenticationService(api, authenticationRepository, *config, authenticationServer)

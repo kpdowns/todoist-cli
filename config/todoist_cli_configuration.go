@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
 )
@@ -23,6 +25,11 @@ type TodoistCliConfiguration struct {
 
 // LoadConfiguration loads the configuration file located in ./config.yml, emits an error if the configuration file is not valid
 func LoadConfiguration() (*TodoistCliConfiguration, error) {
+	currentExecutablePath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err == nil {
+		viper.AddConfigPath(currentExecutablePath + "\\")
+	}
+
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config.yml")
 	viper.AddConfigPath(".")

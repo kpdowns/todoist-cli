@@ -15,7 +15,7 @@ Please familiarize yourself with the planned functionality for the Todoist-cli (
 - Associating internal ids with Todoist tasks and projects to allow for easier management
 - Allow creation of projects
 - Allow deletion of projects
-- Allow creation of basic tasks (with no priority or defined project)
+- ~~Allow creation of basic tasks (with no priority or defined project)~~
 - Allow creation of tasks with a user defined priority and project
 - Allow reprioritization of tasks & changing due dates
 - Allow flagging tasks as completed

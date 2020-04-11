@@ -12,19 +12,18 @@ import (
 )
 
 func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T) {
-	dependencies := &dependencies{
-		authenticationService: &mocks.MockAuthenticationService{
-			AuthenticatedStateToReturn: false,
-		},
+	mockAuthenticationService := &mocks.MockAuthenticationService{
+		AuthenticatedStateToReturn: false,
 	}
+	mockOutputStream := &bytes.Buffer{}
 
-	err := execute(dependencies)
-	if err == nil {
-		t.Errorf("Expected that the client would receive an error but none was received")
-	}
+	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, nil)
+	listTaskCommand.Execute()
 
-	if err != nil && err.Error() != errorNotCurrentlyAuthenticated {
-		t.Errorf("Received an error of '%s', but expected '%s'", err.Error(), errorNotCurrentlyAuthenticated)
+	textExpectedToBeWrittenToConsole := errorNotCurrentlyAuthenticated
+	textThatWasWrittenToConsole := mockOutputStream.String()
+	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
+		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
 	}
 }
 
@@ -46,10 +45,9 @@ func TestGivenAnAuthenticatedClientWhenThereAreNoTasksThenTextSayingThereAreNoTa
 	taskService := tasks.NewTaskService(mockAPI, mockAuthenticationService)
 
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
+	listTaskCommand.Execute()
 
-	listTaskCommand.Run(listTaskCommand, []string{})
-
-	textExpectedToBeWrittenToConsole := noTasksMessage + "\n"
+	textExpectedToBeWrittenToConsole := noTasksMessage
 	textThatWasWrittenToConsole := mockOutputStream.String()
 	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
 		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
@@ -86,8 +84,7 @@ func TestGivenAnAuthenticatedClientWhenThereAreTasksThenTheTasksAreWrittenToTheO
 	taskService := tasks.NewTaskService(mockAPI, mockAuthenticationService)
 
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
-
-	listTaskCommand.Run(listTaskCommand, []string{})
+	listTaskCommand.Execute()
 
 	textExpectedToBeWrittenToConsole := taskToBeWritten.AsString() + "\n"
 	textThatWasWrittenToConsole := mockOutputStream.String()

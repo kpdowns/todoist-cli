@@ -23,7 +23,7 @@ func TestIfNotAlreadyAuthenticatedThenTheOauthUrlIsWrittenToTheConsoleSoThatTheU
 	}
 
 	loginCommand := NewLoginCommand(mockOutputStream, authenticationService, guid)
-	loginCommand.Run(loginCommand, []string{})
+	loginCommand.Execute()
 
 	expectedURL := authenticationService.GetOauthURL(guid)
 	expectedText := fmt.Sprintf(oauthInitiationText, expectedURL)
@@ -42,7 +42,7 @@ func TestIfAlreadyAuthenticatedThenErrorIsReturnedWhenExecutingCommand(t *testin
 	}
 
 	loginCommand := NewLoginCommand(mockOutputStream, authenticationService, guid)
-	loginCommand.Run(loginCommand, []string{})
+	loginCommand.Execute()
 
 	actualText := mockOutputStream.String()
 	expectedText := errorAlreadyAuthenticatedText
@@ -59,7 +59,7 @@ func TestIfTodoistCliIsNotAlreadyAuthenticatedThenNoAuthenticationErrorIsReturne
 	}
 
 	loginCommand := NewLoginCommand(mockOutputStream, authenticationService, guid)
-	loginCommand.Run(loginCommand, []string{})
+	loginCommand.Execute()
 
 	actualText := mockOutputStream.String()
 	if actualText == errorAlreadyAuthenticatedText {
@@ -84,7 +84,7 @@ func TestIfTodoistCliIsNotAlreadyAuthenticatedAndNoErrorsOccurThenTheUserIsAuthe
 	guid := guid.NewString()
 
 	loginCommand := NewLoginCommand(mockOutputStream, authenticationService, guid)
-	loginCommand.Run(loginCommand, []string{})
+	loginCommand.Execute()
 
 	isAuthenticated, err := authenticationService.IsAuthenticated()
 	if err != nil || !isAuthenticated {

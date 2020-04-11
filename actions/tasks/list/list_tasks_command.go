@@ -37,7 +37,7 @@ func NewListTasksCommand(o io.Writer, a authentication.Service, t tasks.Service)
 		Run: func(command *cobra.Command, args []string) {
 			err := execute(dependencies)
 			if err != nil {
-				fmt.Fprintln(o, err.Error())
+				fmt.Fprint(o, err.Error())
 			}
 		},
 	}
@@ -57,7 +57,7 @@ func execute(d *dependencies) error {
 	}
 
 	if len(tasks) == 0 {
-		fmt.Fprintln(d.outputStream, noTasksMessage)
+		fmt.Fprint(d.outputStream, noTasksMessage)
 	}
 
 	writer := tabwriter.NewWriter(d.outputStream, 0, 8, 1, '\t', 0)

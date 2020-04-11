@@ -14,7 +14,7 @@ func TestIfNotAuthenticatedThenLoggingOutThrowsAnError(t *testing.T) {
 	}
 
 	logoutCommand := NewLogoutCommand(mockOutputStream, mockAuthenticationService)
-	logoutCommand.Run(logoutCommand, []string{})
+	logoutCommand.Execute()
 
 	expectedPrompt := errorNotCurrentlyAuthenticated
 	actualPrompt := mockOutputStream.String()
@@ -30,7 +30,7 @@ func TestIfAuthenticatedAndRevokingAccessTokensReturnsNoErrorsThenNoErrorsAreRet
 	}
 
 	logoutCommand := NewLogoutCommand(mockOutputStream, mockAuthenticationService)
-	logoutCommand.Run(logoutCommand, []string{})
+	logoutCommand.Execute()
 
 	expectedPrompt := successfullyLoggedOut
 	actualPrompt := mockOutputStream.String()
@@ -46,7 +46,7 @@ func TestIfAuthenticatedAndLoggingOutThenSuccessfullyLoggedOut(t *testing.T) {
 	}
 
 	logoutCommand := NewLogoutCommand(mockOutputStream, mockAuthenticationService)
-	logoutCommand.Run(logoutCommand, []string{})
+	logoutCommand.Execute()
 
 	isLoggedOut, _ := mockAuthenticationService.IsAuthenticated()
 	if !isLoggedOut {

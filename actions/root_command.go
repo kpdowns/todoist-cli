@@ -10,6 +10,7 @@ import (
 	"github.com/kpdowns/todoist-cli/actions/tasks"
 	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/kpdowns/todoist-cli/config"
+	"github.com/kpdowns/todoist-cli/storage"
 	"github.com/kpdowns/todoist-cli/todoist"
 	"github.com/spf13/cobra"
 )
@@ -31,8 +32,9 @@ func Initialize() error {
 	outputStream := os.Stdout
 	api := todoist.NewAPI(*config)
 
+	authenticationFilePath := "./authentication.data"
 	authenticationServer := authentication.NewAuthenticationServer()
-	authenticationRepository := authentication.NewAuthenticationRepository()
+	authenticationRepository := authentication.NewAuthenticationRepository(storage.NewFile(authenticationFilePath))
 	authenticationService := authentication.NewAuthenticationService(api, authenticationRepository, *config, authenticationServer)
 
 	rootCommand.AddCommand(login.NewLoginCommand(outputStream, authenticationService, guid.NewString()))

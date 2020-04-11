@@ -41,7 +41,7 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 
 	accessToken, _ := s.authenticationService.GetAccessToken()
 	resourceTypes := []requests.ResourceType{"items"}
-	syncQuery := requests.NewSyncQuery(accessToken, "*", resourceTypes)
+	syncQuery := requests.NewSyncQuery(accessToken.AccessToken, "*", resourceTypes)
 
 	syncResponse, err := s.api.ExecuteSyncQuery(syncQuery)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/kpdowns/todoist-cli/authentication/types"
 	"github.com/kpdowns/todoist-cli/config"
 
 	"github.com/kpdowns/todoist-cli/todoist"
@@ -21,7 +22,7 @@ const (
 // Service provides functionality to handle the access token used by the Todoist API
 type Service interface {
 	IsAuthenticated() (bool, error)
-	GetAccessToken() (string, error)
+	GetAccessToken() (*types.AccessToken, error)
 	SignIn(code string) error
 	SignOut() error
 	GetOauthURL(guid string) string
@@ -51,7 +52,7 @@ func (s *service) IsAuthenticated() (bool, error) {
 		return false, err
 	}
 
-	isAccessTokenEmptyString := accessToken == ""
+	isAccessTokenEmptyString := accessToken.AccessToken == ""
 	if isAccessTokenEmptyString {
 		return false, nil
 	}
@@ -60,7 +61,7 @@ func (s *service) IsAuthenticated() (bool, error) {
 }
 
 // GetAccessToken retrieves the current access token
-func (s *service) GetAccessToken() (string, error) {
+func (s *service) GetAccessToken() (*types.AccessToken, error) {
 	return s.repository.GetAccessToken()
 }
 
@@ -100,7 +101,7 @@ func (s *service) SignOut() error {
 		return err
 	}
 
-	err = s.api.RevokeAccessToken(accessToken)
+	err = s.api.RevokeAccessToken(accessToken.AccessToken)
 	if err != nil {
 		return err
 	}

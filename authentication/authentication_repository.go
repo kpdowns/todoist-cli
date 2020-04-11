@@ -1,83 +1,58 @@
 package authentication
 
 import (
-	"bufio"
-	"os"
+	"errors"
+	"strings"
+
+	"github.com/kpdowns/todoist-cli/authentication/types"
+	"github.com/kpdowns/todoist-cli/storage"
 )
 
-const authenticationFilePath = "./authentication.data"
+const (
+	errorMalformedAuthenticationFile = "Error, the contents of the authentication file are malformed"
+)
 
 // Repository handles persistence of the access token to be used with the Todoist API
 type Repository interface {
-	GetAccessToken() (string, error)
+	GetAccessToken() (*types.AccessToken, error)
 	DeleteAccessToken() error
 	UpdateAccessToken(token string) error
 }
 
-type repository struct{}
-
-// NewAuthenticationRepository creates a new instance of the repository that writes to file
-func NewAuthenticationRepository() Repository {
-	return &repository{}
+type repository struct {
+	file storage.File
 }
 
-func (r *repository) GetAccessToken() (string, error) {
-	authenticationFile, err := r.getAuthenticationFile()
+// NewAuthenticationRepository creates a new instance of the repository that writes to storage
+func NewAuthenticationRepository(file storage.File) Repository {
+	return &repository{
+		file: file,
+	}
+}
+
+// GetAccessToken retrieves the access token from the contents of the storage
+func (r *repository) GetAccessToken() (*types.AccessToken, error) {
+	//todo - test for error if more than 1 line
+	contents, err := r.file.ReadContents()
 	if err != nil {
-		return "", err
+		return nil, nil
 	}
 
-	defer authenticationFile.Close()
+	if len(strings.Split(contents, "\n")) >= 2 {
+		return nil, errors.New(errorMalformedAuthenticationFile)
+	}
 
-	scanner := bufio.NewScanner(authenticationFile)
-	scanner.Scan()
-
-	accessToken := scanner.Text()
-	return accessToken, nil
+	return &types.AccessToken{AccessToken: contents}, nil
 }
 
+// DeleteAccessToken removes the access token from storage
 func (r *repository) DeleteAccessToken() error {
-	authenticationFile, err := r.getAuthenticationFile()
-	if err != nil {
-		return err
-	}
-
-	defer authenticationFile.Close()
-
-	err = authenticationFile.Truncate(0)
-	if err != nil {
-		return err
-	}
-
-	_, err = authenticationFile.Seek(0, 0)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	err := r.file.OverwriteContents("")
+	return err
 }
 
+// UpdateAccessToken overwrites the existing access token saved in storage
 func (r *repository) UpdateAccessToken(token string) error {
-	r.DeleteAccessToken()
-
-	authenticationFile, err := r.getAuthenticationFile()
-	if err != nil {
-		return err
-	}
-	defer authenticationFile.Close()
-
-	_, err = authenticationFile.WriteString(token)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *repository) getAuthenticationFile() (*os.File, error) {
-	authenticationFile, err := os.OpenFile(authenticationFilePath, os.O_RDWR|os.O_CREATE, 0660)
-	if err != nil {
-		return nil, err
-	}
-	return authenticationFile, nil
+	err := r.file.OverwriteContents(token)
+	return err
 }

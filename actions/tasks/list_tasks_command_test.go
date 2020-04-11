@@ -20,7 +20,7 @@ func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T)
 
 	err := execute(dependencies)
 	if err == nil {
-		t.Errorf("Expected that the client would recieve an error but none was received")
+		t.Errorf("Expected that the client would receive an error but none was received")
 	}
 
 	if err != nil && err.Error() != errorNotCurrentlyAuthenticated {

@@ -20,8 +20,8 @@ type service struct {
 	authenticationService authentication.Service
 }
 
-// NewService creates a new instance of the Authentication service
-func NewService(api todoist.API, authenticationService authentication.Service) Service {
+// NewTaskService creates a new instance of the task service
+func NewTaskService(api todoist.API, authenticationService authentication.Service) Service {
 	return &service{
 		api:                   api,
 		authenticationService: authenticationService,

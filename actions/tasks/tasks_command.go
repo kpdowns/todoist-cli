@@ -20,7 +20,7 @@ func NewTasksCommand(api todoist.API, o io.Writer, auth authentication.Service) 
 		Long:  "Manage tasks on Todoist.com",
 	}
 
-	taskService := NewService(api, auth)
+	taskService := NewTaskService(api, auth)
 	tasksCommand.AddCommand(NewListTasksCommand(o, auth, taskService))
 
 	return tasksCommand

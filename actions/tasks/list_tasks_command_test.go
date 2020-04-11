@@ -42,7 +42,7 @@ func TestGivenAnAuthenticatedClientWhenThereAreNoTasksThenTextSayingThereAreNoTa
 	}
 	mockOutputStream := &bytes.Buffer{}
 
-	taskService := NewService(mockAPI, mockAuthenticationService)
+	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
 
@@ -82,7 +82,7 @@ func TestGivenAnAuthenticatedClientWhenThereAreTasksThenTheTasksAreWrittenToTheO
 	}
 	mockOutputStream := &bytes.Buffer{}
 
-	taskService := NewService(mockAPI, mockAuthenticationService)
+	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
 

@@ -7,21 +7,23 @@ import (
 	"text/tabwriter"
 
 	"github.com/kpdowns/todoist-cli/authentication"
+	"github.com/kpdowns/todoist-cli/tasks"
 	"github.com/spf13/cobra"
 )
 
 const (
-	noTasksMessage = "No tasks to complete across any of your projects"
+	noTasksMessage                 = "No tasks to complete across any of your projects"
+	errorNotCurrentlyAuthenticated = "Error, you are not currently logged in"
 )
 
 type dependencies struct {
 	outputStream          io.Writer
 	authenticationService authentication.Service
-	taskService           Service
+	taskService           tasks.Service
 }
 
 // NewListTasksCommand creates an instance of the command that prints all tasks to the console
-func NewListTasksCommand(o io.Writer, a authentication.Service, t Service) *cobra.Command {
+func NewListTasksCommand(o io.Writer, a authentication.Service, t tasks.Service) *cobra.Command {
 	var dependencies = &dependencies{
 		outputStream:          o,
 		authenticationService: a,

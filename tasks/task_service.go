@@ -10,6 +10,10 @@ import (
 	"github.com/kpdowns/todoist-cli/todoist"
 )
 
+const (
+	errorNotCurrentlyAuthenticated = "Error, you are not currently logged in"
+)
+
 // Service provides functionality to handle the access token used by the Todoist API
 type Service interface {
 	GetAllTasks() ([]types.Task, error)

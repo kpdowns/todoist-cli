@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/kpdowns/todoist-cli/tasks"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
 	"github.com/kpdowns/todoist-cli/todoist/responses"
 
@@ -42,7 +43,7 @@ func TestGivenAnAuthenticatedClientWhenThereAreNoTasksThenTextSayingThereAreNoTa
 	}
 	mockOutputStream := &bytes.Buffer{}
 
-	taskService := NewTaskService(mockAPI, mockAuthenticationService)
+	taskService := tasks.NewTaskService(mockAPI, mockAuthenticationService)
 
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
 
@@ -82,7 +83,7 @@ func TestGivenAnAuthenticatedClientWhenThereAreTasksThenTheTasksAreWrittenToTheO
 	}
 	mockOutputStream := &bytes.Buffer{}
 
-	taskService := NewTaskService(mockAPI, mockAuthenticationService)
+	taskService := tasks.NewTaskService(mockAPI, mockAuthenticationService)
 
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
 

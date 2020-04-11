@@ -5,18 +5,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"github.com/kpdowns/todoist-cli/config"
+	"github.com/kpdowns/todoist-cli/rest"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
 	"github.com/kpdowns/todoist-cli/todoist/responses"
 )
 
 const (
-	errorRetrievingAccessToken = "Error occurred while retrieving the access token, code was %d\n"
-	errorRevokingAccessToken   = "Failed to revoke access token, response status was %d\n"
-	errorSyncQuery             = "Error executing sync query, code was %d\n"
-	errorSyncCommand           = "Error executing sync command, code was %d\n"
+	errorRetrievingAccessToken            = "An error occurred while retrieving your access token, please try again later"
+	errorRevokingAccessToken              = "An error occurred while attempting to revoke your access token, please try again later"
+	errorCommunicatingWithTodoistAPI      = "An error occurred while attempting to communicate with Todoist, please try again later"
+	errorExecutingQuery                   = "An error occurred while executing your query, please try again later"
+	errorExecutingQueryMalformedQuery     = "An error occurred while executing your query, the query was not valid"
+	errorExecutingCommand                 = "An error occurred while executing your command, please try again later"
+	errorExecutingCommandMalformedCommand = "An error occurred while executing your command, the command was not valid"
+	errorMalformedResponse                = "An error occurred while trying to decode the response from Todoist, please try again later"
 )
 
 // API provides functions for interacting with the Todoist API
@@ -49,14 +53,13 @@ func (a *api) GetAccessToken(code string) (*responses.AccessToken, error) {
 	)
 
 	var buffer []byte
-	response, err := http.Post(accessTokenURL, "application/json", bytes.NewBuffer(buffer))
+	response, err := rest.Post(accessTokenURL, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errorCommunicatingWithTodoistAPI)
 	}
 
 	if response.StatusCode != 200 {
-		errorMessage := fmt.Sprintf(errorRetrievingAccessToken, response.StatusCode)
-		return nil, errors.New(errorMessage)
+		return nil, errors.New(errorRetrievingAccessToken)
 	}
 
 	defer response.Body.Close()
@@ -64,7 +67,7 @@ func (a *api) GetAccessToken(code string) (*responses.AccessToken, error) {
 	var accessToken responses.AccessToken
 	err = json.NewDecoder(response.Body).Decode(&accessToken)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errorMalformedResponse)
 	}
 
 	return &accessToken, nil
@@ -72,6 +75,10 @@ func (a *api) GetAccessToken(code string) (*responses.AccessToken, error) {
 
 // RevokeAccessToken revokes the current access token effectively logging the user out
 func (a *api) RevokeAccessToken(accessToken string) error {
+	if accessToken == "" {
+		return errors.New(errorRevokingAccessToken)
+	}
+
 	revokeAccessTokenURL := fmt.Sprintf("%s/sync/v8/access_tokens/revoke", a.config.Client.TodoistURL)
 
 	requestBody := &requests.RevokeAccessToken{
@@ -85,15 +92,14 @@ func (a *api) RevokeAccessToken(accessToken string) error {
 		return err
 	}
 
-	response, err := http.Post(revokeAccessTokenURL, "application/json", bytes.NewBuffer(jsonRequestBody))
+	response, err := rest.Post(revokeAccessTokenURL, "application/json", bytes.NewBuffer(jsonRequestBody))
 	if err != nil {
-		return err
+		return errors.New(errorCommunicatingWithTodoistAPI)
 	}
 
 	defer response.Body.Close()
 	if response.StatusCode != 204 {
-		errorMessage := fmt.Sprintf(errorRevokingAccessToken, response.StatusCode)
-		return errors.New(errorMessage)
+		return errors.New(errorRevokingAccessToken)
 	}
 
 	return nil
@@ -104,21 +110,20 @@ func (a *api) ExecuteSyncQuery(query requests.Query) (*responses.Query, error) {
 	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, query.ToQueryString())
 
 	var buffer []byte
-	response, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
+	response, err := rest.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errorCommunicatingWithTodoistAPI)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		errorMessage := fmt.Sprintf(errorSyncQuery, response.StatusCode)
-		return nil, errors.New(errorMessage)
+		return nil, errors.New(errorExecutingQuery)
 	}
 
 	var queryResponse responses.Query
 	err = json.NewDecoder(response.Body).Decode(&queryResponse)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errorMalformedResponse)
 	}
 
 	return &queryResponse, nil
@@ -128,15 +133,14 @@ func (a *api) ExecuteSyncQuery(query requests.Query) (*responses.Query, error) {
 func (a *api) ExecuteSyncCommand(command requests.Command) error {
 	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, command.ToQueryString())
 
-	response, err := http.Get(url)
+	response, err := rest.Get(url)
 	if err != nil {
-		return err
+		return errors.New(errorCommunicatingWithTodoistAPI)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		errorMessage := fmt.Sprintf(errorSyncCommand, response.StatusCode)
-		return errors.New(errorMessage)
+		return errors.New(errorExecutingCommand)
 	}
 
 	return nil

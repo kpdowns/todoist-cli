@@ -5,26 +5,31 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/beevik/guid"
 )
 
-func TestWhenGettingTheCommandsQueryStringThenTheQueryStringIsAsExpected(t *testing.T) {
-	arguments := make(map[string]interface{})
-	arguments["color"] = 1
-	arguments["name"] = "project1"
+func TestSyncCommandSerialization(t *testing.T) {
 
-	tempID := guid.NewString()
-	uuid := guid.NewString()
+	t.Run("Given a command, when converting the command to query string, the token is a parameter, and the commands are a URL escaped JSON object", func(t *testing.T) {
+		arguments := make(map[string]interface{})
+		arguments["color"] = 1
+		arguments["name"] = "project1"
 
-	command := NewCommand("token", "project_add", arguments)
-	command.Commands[0].TemporaryID = tempID
-	command.Commands[0].UUID = uuid
+		tempID := guid.NewString()
+		uuid := guid.NewString()
 
-	expectedCommandString := fmt.Sprintf(`[{"type":"project_add","temp_id":"%s","uuid":"%s","args":{"color":1,"name":"project1"}}]`, tempID, uuid)
-	expectedEscapedCommandString := url.QueryEscape(expectedCommandString)
-	expectedQueryString := fmt.Sprintf(`token=token&commands=%s`, expectedEscapedCommandString)
-	actualQueryString := command.ToQueryString()
-	if expectedQueryString != actualQueryString {
-		t.Errorf("Expected '%s', got '%s'", expectedQueryString, actualQueryString)
-	}
+		command := NewCommand("token", "project_add", arguments)
+		command.Commands[0].TemporaryID = tempID
+		command.Commands[0].UUID = uuid
+
+		commandString := fmt.Sprintf(`[{"type":"project_add","temp_id":"%s","uuid":"%s","args":{"color":1,"name":"project1"}}]`, tempID, uuid)
+		urlEscaptedCommandString := url.QueryEscape(commandString)
+
+		expected := fmt.Sprintf(`token=token&commands=%s`, urlEscaptedCommandString)
+		actual := command.ToQueryString()
+
+		assert.Equal(t, expected, actual)
+	})
 }

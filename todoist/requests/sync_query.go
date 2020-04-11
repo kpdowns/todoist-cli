@@ -5,11 +5,7 @@ import (
 )
 
 // Query is a type of query that can be made against the Todoist API
-type Query interface {
-	ToQueryString() string
-}
-
-type syncQuery struct {
+type Query struct {
 	Token         string
 	SyncToken     string
 	ResourceTypes ResourceTypes
@@ -17,7 +13,7 @@ type syncQuery struct {
 
 // NewQuery creates a new instance of a Query
 func NewQuery(token string, syncToken string, resourceTypes ResourceTypes) Query {
-	return &syncQuery{
+	return Query{
 		Token:         token,
 		SyncToken:     syncToken,
 		ResourceTypes: resourceTypes,
@@ -25,6 +21,6 @@ func NewQuery(token string, syncToken string, resourceTypes ResourceTypes) Query
 }
 
 // ToQueryString converts the Query into a url query string to be provided on requests to Todoist
-func (q *syncQuery) ToQueryString() string {
+func (q *Query) ToQueryString() string {
 	return fmt.Sprintf(`token=%s&sync_token=%s&resource_types=%s`, q.Token, q.SyncToken, q.ResourceTypes.ToString())
 }

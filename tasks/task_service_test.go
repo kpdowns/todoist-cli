@@ -79,7 +79,7 @@ func TestGivenAddingATaskWhenNoContentIsProvidedForTheTaskThenError(t *testing.T
 
 	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
-	err := taskService.AddTask("content", "today", 1)
+	err := taskService.AddTask("", "today", 1)
 	if err == nil {
 		t.Error("Expected error to be returned but didn't get any")
 	}

@@ -3,6 +3,7 @@ package tasks
 import (
 	"io"
 
+	"github.com/kpdowns/todoist-cli/actions/tasks/add"
 	"github.com/kpdowns/todoist-cli/actions/tasks/list"
 	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/kpdowns/todoist-cli/tasks"
@@ -20,6 +21,7 @@ func NewTasksCommand(api todoist.API, o io.Writer, auth authentication.Service) 
 
 	taskService := tasks.NewTaskService(api, auth)
 	tasksCommand.AddCommand(list.NewListTasksCommand(o, auth, taskService))
+	tasksCommand.AddCommand(add.NewAddTaskCommand(o, auth, taskService))
 
 	return tasksCommand
 }

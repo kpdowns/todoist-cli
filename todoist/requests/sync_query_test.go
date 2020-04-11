@@ -7,7 +7,7 @@ import (
 
 func TestWhenConstructingSyncQueryThenTheQueryStringIsCorrectlyFormed(t *testing.T) {
 	resourceTypes := ResourceTypes{"all"}
-	syncQuery := NewSyncQuery("token", "sync_token", resourceTypes)
+	syncQuery := NewQuery("token", "sync_token", resourceTypes)
 
 	expectedString := fmt.Sprintf(`token=token&sync_token=sync_token&resource_types=%s`, resourceTypes.ToString())
 	actualString := syncQuery.ToQueryString()

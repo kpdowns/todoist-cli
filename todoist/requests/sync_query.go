@@ -1,9 +1,11 @@
 package requests
 
-import "fmt"
+import (
+	"fmt"
+)
 
-// SyncQuery is a type of query that can be made against the Todoist API
-type SyncQuery interface {
+// Query is a type of query that can be made against the Todoist API
+type Query interface {
 	ToQueryString() string
 }
 
@@ -13,8 +15,8 @@ type syncQuery struct {
 	ResourceTypes ResourceTypes
 }
 
-// NewSyncQuery creates a new instance of a SyncQuery
-func NewSyncQuery(token string, syncToken string, resourceTypes ResourceTypes) SyncQuery {
+// NewQuery creates a new instance of a Query
+func NewQuery(token string, syncToken string, resourceTypes ResourceTypes) Query {
 	return &syncQuery{
 		Token:         token,
 		SyncToken:     syncToken,
@@ -22,7 +24,7 @@ func NewSyncQuery(token string, syncToken string, resourceTypes ResourceTypes) S
 	}
 }
 
-// ToQueryString converts the SyncQuery into a url query string to be provided on requests to the Todoist API
+// ToQueryString converts the Query into a url query string to be provided on requests to Todoist
 func (q *syncQuery) ToQueryString() string {
 	return fmt.Sprintf(`token=%s&sync_token=%s&resource_types=%s`, q.Token, q.SyncToken, q.ResourceTypes.ToString())
 }

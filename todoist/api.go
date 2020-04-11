@@ -16,13 +16,15 @@ const (
 	errorRetrievingAccessToken = "Error occurred while retrieving the access token, code was %d\n"
 	errorRevokingAccessToken   = "Failed to revoke access token, response status was %d\n"
 	errorSyncQuery             = "Error executing sync query, code was %d\n"
+	errorSyncCommand           = "Error executing sync command, code was %d\n"
 )
 
 // API provides functions for interacting with the Todoist API
 type API interface {
 	GetAccessToken(code string) (*responses.AccessToken, error)
 	RevokeAccessToken(accessToken string) error
-	ExecuteSyncQuery(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error)
+	ExecuteSyncQuery(query requests.Query) (*responses.Query, error)
+	ExecuteSyncCommand(command requests.Command) error
 }
 
 type api struct {
@@ -97,27 +99,45 @@ func (a *api) RevokeAccessToken(accessToken string) error {
 	return nil
 }
 
-func (a *api) ExecuteSyncQuery(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error) {
-	syncRequestURL := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, syncQuery.ToQueryString())
+// ExecuteSyncQuery executes a query against Todoist and returns the response
+func (a *api) ExecuteSyncQuery(query requests.Query) (*responses.Query, error) {
+	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, query.ToQueryString())
 
 	var buffer []byte
-	response, err := http.Post(syncRequestURL, "application/json", bytes.NewBuffer(buffer))
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(buffer))
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
 		errorMessage := fmt.Sprintf(errorSyncQuery, response.StatusCode)
 		return nil, errors.New(errorMessage)
 	}
 
-	defer response.Body.Close()
-
-	var syncResponse responses.SyncQueryResponse
-	err = json.NewDecoder(response.Body).Decode(&syncResponse)
+	var queryResponse responses.Query
+	err = json.NewDecoder(response.Body).Decode(&queryResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	return &syncResponse, nil
+	return &queryResponse, nil
+}
+
+// ExecuteSyncCommand executes a command against Todoist and returns the response
+func (a *api) ExecuteSyncCommand(command requests.Command) error {
+	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, command.ToQueryString())
+
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		errorMessage := fmt.Sprintf(errorSyncCommand, response.StatusCode)
+		return errors.New(errorMessage)
+	}
+
+	return nil
 }

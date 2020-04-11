@@ -32,8 +32,8 @@ func TestGivenAnAuthenticatedClientWhenThereAreNoTasksThenTextSayingThereAreNoTa
 		AuthenticatedStateToReturn: true,
 	}
 	mockAPI := &mocks.MockAPI{
-		ExecuteSyncQueryFunction: func(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error) {
-			syncResponse := &responses.SyncQueryResponse{
+		ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
+			syncResponse := &responses.Query{
 				Items: []responses.Item{},
 			}
 
@@ -69,8 +69,8 @@ func TestGivenAnAuthenticatedClientWhenThereAreTasksThenTheTasksAreWrittenToTheO
 		AuthenticatedStateToReturn: true,
 	}
 	mockAPI := &mocks.MockAPI{
-		ExecuteSyncQueryFunction: func(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error) {
-			syncResponse := &responses.SyncQueryResponse{
+		ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
+			syncResponse := &responses.Query{
 				Items: []responses.Item{
 					itemReturned,
 				},

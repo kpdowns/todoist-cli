@@ -3,21 +3,22 @@ package tasks
 import (
 	"errors"
 
-	"github.com/kpdowns/todoist-cli/tasks/types"
-	"github.com/kpdowns/todoist-cli/todoist/requests"
-
 	"github.com/kpdowns/todoist-cli/authentication"
+	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist"
+	"github.com/kpdowns/todoist-cli/todoist/requests"
 )
 
 const (
 	errorNotCurrentlyAuthenticated   = "Error, you are not currently logged in"
 	errorOccurredDuringSyncOperation = "Error occurred while syncing with Todoist"
+	errorNoContent                   = "Task content must be provided when adding a task"
 )
 
 // Service provides functionality to handle the access token used by the Todoist API
 type Service interface {
 	GetAllTasks() ([]types.Task, error)
+	AddTask(content string) error
 }
 
 type service struct {
@@ -42,7 +43,7 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 
 	accessToken, _ := s.authenticationService.GetAccessToken()
 	resourceTypes := []requests.ResourceType{"items"}
-	syncQuery := requests.NewSyncQuery(accessToken.AccessToken, "*", resourceTypes)
+	syncQuery := requests.NewQuery(accessToken.AccessToken, "*", resourceTypes)
 
 	syncResponse, err := s.api.ExecuteSyncQuery(syncQuery)
 	if err != nil {
@@ -57,4 +58,31 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 
 	sortedTasks := tasks.SortByDueDateThenSortByPriority()
 	return sortedTasks, nil
+}
+
+func (s *service) AddTask(content string) error {
+	if content == "" {
+		return errors.New(errorNoContent)
+	}
+
+	isAuthenticated, err := s.authenticationService.IsAuthenticated()
+	if err != nil || !isAuthenticated {
+		return errors.New(errorNotCurrentlyAuthenticated)
+	}
+
+	accessToken, _ := s.authenticationService.GetAccessToken()
+
+	arguments := struct {
+		Content string `json:"content"`
+	}{
+		Content: content,
+	}
+
+	command := requests.NewCommand(accessToken.AccessToken, "item_add", arguments)
+	err = s.api.ExecuteSyncCommand(command)
+	if err != nil {
+		return errors.New(errorOccurredDuringSyncOperation)
+	}
+
+	return nil
 }

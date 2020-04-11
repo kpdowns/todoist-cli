@@ -32,7 +32,7 @@ func TestGivenGettingAllTasksWhenApiReturnsErrorThenErrorIsReturned(t *testing.T
 		AuthenticatedStateToReturn: true,
 	}
 	mockAPI := &mocks.MockAPI{
-		ExecuteSyncQueryFunction: func(syncQuery requests.SyncQuery) (*responses.SyncQueryResponse, error) {
+		ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
 			return nil, errors.New("Error")
 		},
 	}
@@ -46,5 +46,81 @@ func TestGivenGettingAllTasksWhenApiReturnsErrorThenErrorIsReturned(t *testing.T
 
 	if err.Error() != errorOccurredDuringSyncOperation {
 		t.Errorf("Expected '%s', got '%s'", errorOccurredDuringSyncOperation, err.Error())
+	}
+}
+
+func TestGivenAddingATaskWhenNotAuthenticatedThenError(t *testing.T) {
+	mockAuthenticationService := &mocks.MockAuthenticationService{
+		IsAuthenticatedErrorToReturn: errors.New("test error"),
+	}
+	mockAPI := &mocks.MockAPI{}
+
+	taskService := NewTaskService(mockAPI, mockAuthenticationService)
+
+	err := taskService.AddTask("content")
+	if err == nil {
+		t.Error("Expected error to be returned but didn't get any")
+	}
+
+	if err.Error() != errorNotCurrentlyAuthenticated {
+		t.Errorf("Expected '%s', got '%s'", errorNotCurrentlyAuthenticated, err.Error())
+	}
+}
+
+func TestGivenAddingATaskWhenNoContentIsProvidedForTheTaskThenError(t *testing.T) {
+	mockAuthenticationService := &mocks.MockAuthenticationService{
+		AuthenticatedStateToReturn: true,
+	}
+	mockAPI := &mocks.MockAPI{}
+
+	taskService := NewTaskService(mockAPI, mockAuthenticationService)
+
+	err := taskService.AddTask("")
+	if err == nil {
+		t.Error("Expected error to be returned but didn't get any")
+	}
+
+	if err.Error() != errorNoContent {
+		t.Errorf("Expected '%s', got '%s'", errorNoContent, err.Error())
+	}
+}
+
+func TestGivenAddingATaskWhenTheApiReturnsAnErrorThenError(t *testing.T) {
+	mockAuthenticationService := &mocks.MockAuthenticationService{
+		AuthenticatedStateToReturn: true,
+	}
+	mockAPI := &mocks.MockAPI{
+		ExecuteSyncCommandFunction: func(command requests.Command) error {
+			return errors.New("test error")
+		},
+	}
+
+	taskService := NewTaskService(mockAPI, mockAuthenticationService)
+
+	err := taskService.AddTask("content")
+	if err == nil {
+		t.Error("Expected error to be returned but didn't get any")
+	}
+
+	if err.Error() != errorOccurredDuringSyncOperation {
+		t.Errorf("Expected '%s', got '%s'", errorOccurredDuringSyncOperation, err.Error())
+	}
+}
+
+func TestGivenAddingATaskWhenTheApiDoesNotReturnAnErrorThenTheTaskWasAdded(t *testing.T) {
+	mockAuthenticationService := &mocks.MockAuthenticationService{
+		AuthenticatedStateToReturn: true,
+	}
+	mockAPI := &mocks.MockAPI{
+		ExecuteSyncCommandFunction: func(command requests.Command) error {
+			return nil
+		},
+	}
+
+	taskService := NewTaskService(mockAPI, mockAuthenticationService)
+
+	err := taskService.AddTask("content")
+	if err != nil {
+		t.Errorf("Expected no error, but got '%s'", err.Error())
 	}
 }

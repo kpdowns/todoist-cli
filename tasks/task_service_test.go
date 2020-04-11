@@ -57,7 +57,7 @@ func TestGivenAddingATaskWhenNotAuthenticatedThenError(t *testing.T) {
 
 	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
-	err := taskService.AddTask("content")
+	err := taskService.AddTask("content", "today", 1)
 	if err == nil {
 		t.Error("Expected error to be returned but didn't get any")
 	}
@@ -71,11 +71,15 @@ func TestGivenAddingATaskWhenNoContentIsProvidedForTheTaskThenError(t *testing.T
 	mockAuthenticationService := &mocks.MockAuthenticationService{
 		AuthenticatedStateToReturn: true,
 	}
-	mockAPI := &mocks.MockAPI{}
+	mockAPI := &mocks.MockAPI{
+		ExecuteSyncCommandFunction: func(command requests.Command) error {
+			return nil
+		},
+	}
 
 	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
-	err := taskService.AddTask("")
+	err := taskService.AddTask("content", "today", 1)
 	if err == nil {
 		t.Error("Expected error to be returned but didn't get any")
 	}
@@ -97,7 +101,7 @@ func TestGivenAddingATaskWhenTheApiReturnsAnErrorThenError(t *testing.T) {
 
 	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
-	err := taskService.AddTask("content")
+	err := taskService.AddTask("content", "today", 1)
 	if err == nil {
 		t.Error("Expected error to be returned but didn't get any")
 	}
@@ -119,7 +123,7 @@ func TestGivenAddingATaskWhenTheApiDoesNotReturnAnErrorThenTheTaskWasAdded(t *te
 
 	taskService := NewTaskService(mockAPI, mockAuthenticationService)
 
-	err := taskService.AddTask("content")
+	err := taskService.AddTask("content", "today", 1)
 	if err != nil {
 		t.Errorf("Expected no error, but got '%s'", err.Error())
 	}

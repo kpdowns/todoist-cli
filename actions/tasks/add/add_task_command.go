@@ -33,6 +33,8 @@ func NewAddTaskCommand(o io.Writer, a authentication.Service, t tasks.Service) *
 	}
 
 	content := ""
+	due := ""
+	priority := 1
 
 	var addTaskCommand = &cobra.Command{
 		Use:   "add",
@@ -40,7 +42,7 @@ func NewAddTaskCommand(o io.Writer, a authentication.Service, t tasks.Service) *
 		Long:  "Adds a task",
 		Args:  cobra.OnlyValidArgs,
 		Run: func(command *cobra.Command, args []string) {
-			err := execute(dependencies, content)
+			err := execute(dependencies, content, due, priority)
 			if err != nil {
 				fmt.Fprint(dependencies.outputStream, err.Error())
 			}
@@ -48,11 +50,13 @@ func NewAddTaskCommand(o io.Writer, a authentication.Service, t tasks.Service) *
 	}
 
 	addTaskCommand.Flags().StringVarP(&content, "content", "c", "", "the content of the task")
+	addTaskCommand.Flags().StringVarP(&due, "due", "d", "today", "the due date of the task (either in plain-text 'today', 'tomorrow', etc, or in long format)")
+	addTaskCommand.Flags().IntVarP(&priority, "priority", "p", 1, "the priority of the task, options are 1 - 4 with 4 being the highest")
 
 	return addTaskCommand
 }
 
-func execute(d *dependencies, content string) error {
+func execute(d *dependencies, content string, due string, priority int) error {
 	if content == "" {
 		return errors.New(errorContentNotProvided)
 	}
@@ -62,7 +66,7 @@ func execute(d *dependencies, content string) error {
 		return errors.New(errorNotCurrentlyAuthenticated)
 	}
 
-	err := d.taskService.AddTask(content)
+	err := d.taskService.AddTask(content, due, priority)
 	if err != nil {
 		return errors.New(errorTaskNotAdded)
 	}

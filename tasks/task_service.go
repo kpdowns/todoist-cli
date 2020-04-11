@@ -18,7 +18,7 @@ const (
 // Service provides functionality to handle the access token used by the Todoist API
 type Service interface {
 	GetAllTasks() ([]types.Task, error)
-	AddTask(content string) error
+	AddTask(content string, due string, priority int) error
 }
 
 type service struct {
@@ -60,7 +60,7 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 	return sortedTasks, nil
 }
 
-func (s *service) AddTask(content string) error {
+func (s *service) AddTask(content string, due string, priority int) error {
 	if content == "" {
 		return errors.New(errorNoContent)
 	}
@@ -72,10 +72,16 @@ func (s *service) AddTask(content string) error {
 
 	accessToken, _ := s.authenticationService.GetAccessToken()
 
-	arguments := struct {
-		Content string `json:"content"`
-	}{
-		Content: content,
+	arguments := make(map[string]interface{})
+	arguments["content"] = content
+
+	if due != "" {
+		arguments["due"] = &requests.Due{
+			Value: due,
+		}
+	}
+	if priority != 0 {
+		arguments["priority"] = priority
 	}
 
 	command := requests.NewCommand(accessToken.AccessToken, "item_add", arguments)

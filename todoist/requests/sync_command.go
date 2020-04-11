@@ -16,14 +16,14 @@ type Command struct {
 
 // CommandDetail is an individual command to be executed
 type CommandDetail struct {
-	Type        CommandType `json:"type"`
-	TemporaryID string      `json:"temp_id"`
-	UUID        string      `json:"uuid"`
-	Arguments   interface{} `json:"args"`
+	Type        CommandType            `json:"type"`
+	TemporaryID string                 `json:"temp_id"`
+	UUID        string                 `json:"uuid"`
+	Arguments   map[string]interface{} `json:"args"`
 }
 
 // NewCommand creates a new instance of a Todoist Sync Command
-func NewCommand(token string, commandType CommandType, arguments interface{}) Command {
+func NewCommand(token string, commandType CommandType, arguments map[string]interface{}) Command {
 	return Command{
 		Token: token,
 		Commands: []CommandDetail{
@@ -40,6 +40,7 @@ func NewCommand(token string, commandType CommandType, arguments interface{}) Co
 // ToQueryString generates a query string to be provided as part of the URL in a sync command
 func (c *Command) ToQueryString() string {
 	commandStringAsJSON, _ := json.Marshal(c.Commands)
-	commandStringAsQueryString := url.QueryEscape(string(commandStringAsJSON))
+	commandString := string(commandStringAsJSON)
+	commandStringAsQueryString := url.QueryEscape(commandString)
 	return fmt.Sprintf("token=%s&commands=%s", c.Token, commandStringAsQueryString)
 }

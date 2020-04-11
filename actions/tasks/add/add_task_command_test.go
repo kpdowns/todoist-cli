@@ -50,7 +50,7 @@ func TestWhenContentIsProvidedAndErrorOccursWhileAddingTaskThenTaskWasNotAdded(t
 	}
 	mockOutputStream := &bytes.Buffer{}
 	mockTaskService := &mocks.MockTaskService{
-		AddTaskFunctionToExecute: func(content string) error {
+		AddTaskFunctionToExecute: func(content string, due string, priority int) error {
 			return errors.New("error while adding task")
 		},
 	}
@@ -75,7 +75,7 @@ func TestWhenContentIsProvidedAndNoErrorsOccurThenTaskWasAdded(t *testing.T) {
 	}
 	mockOutputStream := &bytes.Buffer{}
 	mockTaskService := &mocks.MockTaskService{
-		AddTaskFunctionToExecute: func(content string) error {
+		AddTaskFunctionToExecute: func(content string, due string, priority int) error {
 			return nil
 		},
 	}

@@ -3,7 +3,7 @@ package responses
 import (
 	"time"
 
-	"github.com/kpdowns/todoist-cli/actions/tasks/types"
+	"github.com/kpdowns/todoist-cli/tasks/types"
 )
 
 // Item is a task on Todoist

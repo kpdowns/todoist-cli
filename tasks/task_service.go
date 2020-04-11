@@ -3,7 +3,7 @@ package tasks
 import (
 	"errors"
 
-	"github.com/kpdowns/todoist-cli/actions/tasks/types"
+	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
 
 	"github.com/kpdowns/todoist-cli/authentication"

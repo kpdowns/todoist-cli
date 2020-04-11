@@ -5,11 +5,10 @@ import (
 	"os"
 
 	"github.com/beevik/guid"
+	"github.com/kpdowns/todoist-cli/actions/login"
 	"github.com/kpdowns/todoist-cli/actions/logout"
 	"github.com/kpdowns/todoist-cli/actions/tasks"
 	"github.com/kpdowns/todoist-cli/authentication"
-
-	"github.com/kpdowns/todoist-cli/actions/authenticate"
 	"github.com/kpdowns/todoist-cli/config"
 	"github.com/kpdowns/todoist-cli/todoist"
 	"github.com/spf13/cobra"
@@ -36,7 +35,7 @@ func Initialize() error {
 	authenticationRepository := authentication.NewAuthenticationRepository()
 	authenticationService := authentication.NewAuthenticationService(api, authenticationRepository, *config, authenticationServer)
 
-	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(outputStream, authenticationService, guid.NewString()))
+	rootCommand.AddCommand(login.NewLoginCommand(outputStream, authenticationService, guid.NewString()))
 	rootCommand.AddCommand(logout.NewLogoutCommand(outputStream, authenticationService))
 	rootCommand.AddCommand(tasks.NewTasksCommand(api, outputStream, authenticationService))
 

@@ -1,4 +1,4 @@
-package authenticate
+package login
 
 import (
 	"errors"
@@ -26,18 +26,18 @@ type dependencies struct {
 	authenticationService authentication.Service
 }
 
-// NewAuthenticateCommand creates a new instance of the authentication command
-func NewAuthenticateCommand(outputStream io.Writer, authenticationService authentication.Service, guid string) *cobra.Command {
+// NewLoginCommand creates a new instance of the authentication command
+func NewLoginCommand(outputStream io.Writer, authenticationService authentication.Service, guid string) *cobra.Command {
 	var dependencies = &dependencies{
 		outputStream:          outputStream,
 		guid:                  guid,
 		authenticationService: authenticationService,
 	}
 
-	var authenticateCommand = &cobra.Command{
-		Use:   "authenticate",
-		Short: "Start the authentication process against Todoist.com",
-		Long:  "Starts the Oauth login flow on Todoist.com which will allow Todoist-cli to access your tasks and projects on Todoist.com",
+	var loginCommand = &cobra.Command{
+		Use:   "login",
+		Short: "Start the authentication process against Todoist",
+		Long:  "Starts the Oauth login flow on Todoist.com which will allow todoist-cli to access your tasks and projects",
 		Args:  cobra.NoArgs,
 		Run: func(command *cobra.Command, args []string) {
 			err := execute(dependencies)
@@ -47,7 +47,7 @@ func NewAuthenticateCommand(outputStream io.Writer, authenticationService authen
 		},
 	}
 
-	return authenticateCommand
+	return loginCommand
 }
 
 func execute(d *dependencies) error {

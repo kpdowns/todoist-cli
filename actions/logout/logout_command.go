@@ -6,7 +6,6 @@ import (
 	"io"
 
 	"github.com/kpdowns/todoist-cli/authentication"
-	"github.com/kpdowns/todoist-cli/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,15 +15,13 @@ const (
 )
 
 type dependencies struct {
-	config                *config.TodoistCliConfiguration
 	outputStream          io.Writer
 	authenticationService authentication.Service
 }
 
 // NewLogoutCommand creates a new instance of the authentication command
-func NewLogoutCommand(config *config.TodoistCliConfiguration, outputStream io.Writer, authenticationService authentication.Service) *cobra.Command {
+func NewLogoutCommand(outputStream io.Writer, authenticationService authentication.Service) *cobra.Command {
 	var dependencies = &dependencies{
-		config:                config,
 		outputStream:          outputStream,
 		authenticationService: authenticationService,
 	}
@@ -37,7 +34,7 @@ func NewLogoutCommand(config *config.TodoistCliConfiguration, outputStream io.Wr
 		Run: func(command *cobra.Command, args []string) {
 			err := execute(dependencies)
 			if err != nil {
-				fmt.Fprintln(outputStream, err.Error())
+				fmt.Fprint(outputStream, err.Error())
 			}
 		},
 	}
@@ -56,7 +53,7 @@ func execute(dependencies *dependencies) error {
 		return err
 	}
 
-	fmt.Fprintln(dependencies.outputStream, successfullyLoggedOut)
+	fmt.Fprint(dependencies.outputStream, successfullyLoggedOut)
 
 	return nil
 }

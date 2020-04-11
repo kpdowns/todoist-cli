@@ -37,7 +37,7 @@ func Initialize() error {
 	authenticationService := authentication.NewAuthenticationService(api, authenticationRepository, *config, authenticationServer)
 
 	rootCommand.AddCommand(authenticate.NewAuthenticateCommand(outputStream, authenticationService, guid.NewString()))
-	rootCommand.AddCommand(logout.NewLogoutCommand(config, outputStream, authenticationService))
+	rootCommand.AddCommand(logout.NewLogoutCommand(outputStream, authenticationService))
 	rootCommand.AddCommand(tasks.NewTasksCommand(api, outputStream, authenticationService))
 
 	return rootCommand.Execute()

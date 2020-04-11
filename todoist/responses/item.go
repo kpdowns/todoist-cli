@@ -16,6 +16,7 @@ type Item struct {
 	Priority  int16  `json:"priority"`
 }
 
+// ToTask converts the item into a domain task
 func (i *Item) ToTask() types.Task {
 	dateFormat := "2006-01-02"
 	dueDate, err := time.Parse(dateFormat, i.Due.DateString)

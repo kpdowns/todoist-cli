@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	errorNotCurrentlyAuthenticated = "Error, you are not currently logged in"
+	errorNotCurrentlyAuthenticated   = "Error, you are not currently logged in"
+	errorOccurredDuringSyncOperation = "Error occurred while syncing with Todoist"
 )
 
 // Service provides functionality to handle the access token used by the Todoist API
@@ -35,11 +36,7 @@ func NewTaskService(api todoist.API, authenticationService authentication.Servic
 // GetAllTasks returns a list of tasks to do, sorted by day order
 func (s *service) GetAllTasks() ([]types.Task, error) {
 	isAuthenticated, err := s.authenticationService.IsAuthenticated()
-	if err != nil {
-		return nil, err
-	}
-
-	if !isAuthenticated {
+	if err != nil || !isAuthenticated {
 		return nil, errors.New(errorNotCurrentlyAuthenticated)
 	}
 
@@ -49,7 +46,7 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 
 	syncResponse, err := s.api.ExecuteSyncQuery(syncQuery)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errorOccurredDuringSyncOperation)
 	}
 
 	var tasks types.TaskList

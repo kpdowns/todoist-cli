@@ -27,7 +27,7 @@ func NewCommand(token string, commandType CommandType, arguments map[string]inte
 	return Command{
 		Token: token,
 		Commands: []CommandDetail{
-			CommandDetail{
+			{
 				Type:        commandType,
 				TemporaryID: guid.NewString(),
 				UUID:        guid.NewString(),

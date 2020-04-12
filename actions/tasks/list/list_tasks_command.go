@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/kpdowns/todoist-cli/authentication"
-	"github.com/kpdowns/todoist-cli/tasks"
+	"github.com/kpdowns/todoist-cli/tasks/services"
 	"github.com/spf13/cobra"
 )
 
@@ -19,11 +19,11 @@ const (
 type dependencies struct {
 	outputStream          io.Writer
 	authenticationService authentication.Service
-	taskService           tasks.Service
+	taskService           services.TaskService
 }
 
 // NewListTasksCommand creates an instance of the command that prints all tasks to the console
-func NewListTasksCommand(o io.Writer, a authentication.Service, t tasks.Service) *cobra.Command {
+func NewListTasksCommand(o io.Writer, a authentication.Service, t services.TaskService) *cobra.Command {
 	var dependencies = &dependencies{
 		outputStream:          o,
 		authenticationService: a,

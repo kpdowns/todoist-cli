@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/kpdowns/todoist-cli/tasks"
+	"github.com/kpdowns/todoist-cli/tasks/services"
+	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
 	"github.com/kpdowns/todoist-cli/todoist/responses"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/kpdowns/todoist-cli/mocks"
 )
 
-func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T) {
+func TestNotAuthenticated(t *testing.T) {
 	mockAuthenticationService := &mocks.MockAuthenticationService{
 		AuthenticatedStateToReturn: false,
 	}
@@ -20,75 +22,80 @@ func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T)
 	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, nil)
 	listTaskCommand.Execute()
 
-	textExpectedToBeWrittenToConsole := errorNotCurrentlyAuthenticated
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
+	assert.Equal(t, errorNotCurrentlyAuthenticated, mockOutputStream.String())
 }
 
-func TestGivenAnAuthenticatedClientWhenThereAreNoTasksThenTextSayingThereAreNoTasksIsWrittenToTheOutputStream(t *testing.T) {
-	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AuthenticatedStateToReturn: true,
-	}
-	mockAPI := &mocks.MockAPI{
-		ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
-			syncResponse := &responses.Query{
-				Items: []responses.Item{},
-			}
+func TestWrittingToOutputStream(t *testing.T) {
 
-			return syncResponse, nil
-		},
-	}
-	mockOutputStream := &bytes.Buffer{}
+	t.Run("When authenticated and there are no tasks, then message is written to output stream", func(t *testing.T) {
 
-	taskService := tasks.NewTaskService(mockAPI, mockAuthenticationService)
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+		mockAPI := &mocks.MockAPI{
+			ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
+				syncResponse := &responses.Query{
+					Items: []responses.Item{},
+				}
 
-	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
-	listTaskCommand.Execute()
+				return syncResponse, nil
+			},
+		}
+		mockOutputStream := &bytes.Buffer{}
 
-	textExpectedToBeWrittenToConsole := noTasksMessage
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
-}
+		mockTaskRepository := &mocks.MockTaskRepository{
+			CreateAllFunc: func(types.TaskList) (types.TaskList, error) { return nil, nil },
+		}
 
-func TestGivenAnAuthenticatedClientWhenThereAreTasksThenTheTasksAreWrittenToTheOutputStream(t *testing.T) {
-	itemReturned := responses.Item{
-		TodoistID: 1,
-		Priority:  1,
-		Content:   "test",
-		Due: &responses.Due{
-			DateString: "",
-		},
-	}
-	taskToBeWritten := itemReturned.ToTask()
+		taskService := services.NewTaskService(mockAPI, mockAuthenticationService, mockTaskRepository)
 
-	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AuthenticatedStateToReturn: true,
-	}
-	mockAPI := &mocks.MockAPI{
-		ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
-			syncResponse := &responses.Query{
-				Items: []responses.Item{
-					itemReturned,
-				},
-			}
+		listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
+		listTaskCommand.Execute()
 
-			return syncResponse, nil
-		},
-	}
-	mockOutputStream := &bytes.Buffer{}
+		assert.Equal(t, noTasksMessage, mockOutputStream.String())
 
-	taskService := tasks.NewTaskService(mockAPI, mockAuthenticationService)
+	})
 
-	listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
-	listTaskCommand.Execute()
+	t.Run("When authenticated and there are tasks, those tasks are written to output stream", func(t *testing.T) {
+		itemReturned := responses.Item{
+			TodoistID: 1,
+			Priority:  1,
+			Content:   "test",
+			Due: &responses.Due{
+				DateString: "",
+			},
+		}
+		taskToBeWritten := itemReturned.ToTask()
 
-	textExpectedToBeWrittenToConsole := taskToBeWritten.AsString() + "\n"
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+		mockAPI := &mocks.MockAPI{
+			ExecuteSyncQueryFunction: func(syncQuery requests.Query) (*responses.Query, error) {
+				syncResponse := &responses.Query{
+					Items: []responses.Item{
+						itemReturned,
+					},
+				}
+
+				return syncResponse, nil
+			},
+		}
+		mockOutputStream := &bytes.Buffer{}
+
+		mockTaskRepository := &mocks.MockTaskRepository{
+			CreateAllFunc: func(types.TaskList) (types.TaskList, error) {
+				return types.TaskList{taskToBeWritten}, nil
+			},
+		}
+
+		taskService := services.NewTaskService(mockAPI, mockAuthenticationService, mockTaskRepository)
+
+		listTaskCommand := NewListTasksCommand(mockOutputStream, mockAuthenticationService, taskService)
+		listTaskCommand.Execute()
+
+		assert.Equal(t, taskToBeWritten.AsString()+"\n", mockOutputStream.String())
+
+	})
+
 }

@@ -4,7 +4,7 @@ import "github.com/kpdowns/todoist-cli/tasks/types"
 
 // MockTaskService implements the TaskService interface and allows functions to be mocked
 type MockTaskService struct {
-	GetAllTasksFunctionToExecute func() ([]types.Task, error)
+	GetAllTasksFunctionToExecute func() (types.TaskList, error)
 	AddTaskFunctionToExecute     func(content string, due string, priority int) error
 }
 
@@ -17,7 +17,7 @@ func (s *MockTaskService) AddTask(content string, due string, priority int) erro
 }
 
 // GetAllTasks executes the function configured in AddTaskFunctionToExecute
-func (s *MockTaskService) GetAllTasks() ([]types.Task, error) {
+func (s *MockTaskService) GetAllTasks() (types.TaskList, error) {
 	if s.GetAllTasksFunctionToExecute != nil {
 		return s.GetAllTasksFunctionToExecute()
 	}

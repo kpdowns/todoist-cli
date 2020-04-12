@@ -12,6 +12,8 @@ import (
 	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/kpdowns/todoist-cli/config"
 	"github.com/kpdowns/todoist-cli/storage"
+	"github.com/kpdowns/todoist-cli/tasks/repositories"
+	"github.com/kpdowns/todoist-cli/tasks/services"
 	"github.com/kpdowns/todoist-cli/todoist"
 	"github.com/spf13/cobra"
 )
@@ -43,9 +45,14 @@ func Initialize() error {
 	authenticationRepository := authentication.NewAuthenticationRepository(storage.NewFile(authenticationFilePath))
 	authenticationService := authentication.NewAuthenticationService(api, authenticationRepository, *config, authenticationServer)
 
+	tasksFilePath := fmt.Sprintf("%s/tasks.data", currentExecutablePath)
+	tasksFile := storage.NewFile(tasksFilePath)
+	taskRepository := repositories.NewTaskRepository(tasksFile)
+	taskService := services.NewTaskService(api, authenticationService, taskRepository)
+
 	rootCommand.AddCommand(login.NewLoginCommand(outputStream, authenticationService, guid.NewString()))
 	rootCommand.AddCommand(logout.NewLogoutCommand(outputStream, authenticationService))
-	rootCommand.AddCommand(tasks.NewTasksCommand(api, outputStream, authenticationService))
+	rootCommand.AddCommand(tasks.NewTasksCommand(outputStream, authenticationService, taskService))
 
 	return rootCommand.Execute()
 }

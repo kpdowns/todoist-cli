@@ -31,7 +31,7 @@ func (i *Task) AsString() string {
 	}
 
 	return fmt.Sprintf("%d\t%s\t%s",
-		i.TodoistID,
+		i.ID,
 		priorityString,
 		i.Content,
 	)

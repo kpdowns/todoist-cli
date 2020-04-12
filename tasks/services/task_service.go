@@ -1,9 +1,10 @@
-package tasks
+package services
 
 import (
 	"errors"
 
 	"github.com/kpdowns/todoist-cli/authentication"
+	"github.com/kpdowns/todoist-cli/tasks/repositories"
 	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
@@ -15,27 +16,29 @@ const (
 	errorNoContent                   = "Task content must be provided when adding a task"
 )
 
-// Service provides functionality to handle the access token used by the Todoist API
-type Service interface {
-	GetAllTasks() ([]types.Task, error)
+// TaskService provides functionality to handle the access token used by the Todoist API
+type TaskService interface {
+	GetAllTasks() (types.TaskList, error)
 	AddTask(content string, due string, priority int) error
 }
 
-type service struct {
+type taskService struct {
 	api                   todoist.API
 	authenticationService authentication.Service
+	taskRepository        repositories.TaskRepository
 }
 
 // NewTaskService creates a new instance of the task service
-func NewTaskService(api todoist.API, authenticationService authentication.Service) Service {
-	return &service{
+func NewTaskService(api todoist.API, authenticationService authentication.Service, taskRepository repositories.TaskRepository) TaskService {
+	return &taskService{
 		api:                   api,
 		authenticationService: authenticationService,
+		taskRepository:        taskRepository,
 	}
 }
 
 // GetAllTasks returns a list of tasks to do, sorted by day order
-func (s *service) GetAllTasks() ([]types.Task, error) {
+func (s *taskService) GetAllTasks() (types.TaskList, error) {
 	isAuthenticated, err := s.authenticationService.IsAuthenticated()
 	if err != nil || !isAuthenticated {
 		return nil, errors.New(errorNotCurrentlyAuthenticated)
@@ -57,10 +60,16 @@ func (s *service) GetAllTasks() ([]types.Task, error) {
 	}
 
 	sortedTasks := tasks.SortByDueDateThenSortByPriority()
-	return sortedTasks, nil
+
+	persistedTasks, err := s.taskRepository.CreateAll(sortedTasks)
+	if err != nil {
+		return nil, err
+	}
+
+	return persistedTasks, nil
 }
 
-func (s *service) AddTask(content string, due string, priority int) error {
+func (s *taskService) AddTask(content string, due string, priority int) error {
 	if content == "" {
 		return errors.New(errorNoContent)
 	}

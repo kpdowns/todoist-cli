@@ -1,4 +1,4 @@
-package tasks
+package repositories
 
 import (
 	"encoding/json"
@@ -15,27 +15,27 @@ const (
 	errorRepositoryErrorDeletingTasks   = "An error occurred deleting the persisted tasks"
 )
 
-// Repository handles persisting the task with the cli's own internal identifier
-type Repository interface {
+// TaskRepository handles persisting the task with the cli's own internal identifier
+type TaskRepository interface {
 	GetAll() (types.TaskList, error)
 	Get(types.TaskID) (*types.Task, error)
 	CreateAll(types.TaskList) (types.TaskList, error)
 	DeleteAll() error
 }
 
-type repository struct {
+type taskRepository struct {
 	file storage.File
 }
 
-// NewTaskRepository creates a new instance of a repository that handles persistence of tasks
-func NewTaskRepository(file storage.File) Repository {
-	return &repository{
+// NewTaskRepository creates a new instance of a taskRepository that handles persistence of tasks
+func NewTaskRepository(file storage.File) TaskRepository {
+	return &taskRepository{
 		file: file,
 	}
 }
 
 // GetAll retrieves all tasks, error if an error occurs while retrieving the tasks
-func (r *repository) GetAll() (types.TaskList, error) {
+func (r *taskRepository) GetAll() (types.TaskList, error) {
 	contents, err := r.file.ReadContents()
 	if err != nil {
 		return nil, errors.New(errorRepositoryNotAbleToGetTask)
@@ -51,7 +51,7 @@ func (r *repository) GetAll() (types.TaskList, error) {
 }
 
 // Get retrieves a single task with the provided id, error if the task does not exist
-func (r *repository) Get(taskID types.TaskID) (*types.Task, error) {
+func (r *taskRepository) Get(taskID types.TaskID) (*types.Task, error) {
 	tasks, err := r.GetAll()
 	if err != nil {
 		return nil, errors.New(errorRepositoryNotAbleToGetTask)
@@ -67,7 +67,7 @@ func (r *repository) Get(taskID types.TaskID) (*types.Task, error) {
 }
 
 // CreateAll persists all tasks with a generated id for later retrieval, returns a new list of tasks with the generated ids populated if there is no error
-func (r *repository) CreateAll(tasks types.TaskList) (types.TaskList, error) {
+func (r *taskRepository) CreateAll(tasks types.TaskList) (types.TaskList, error) {
 	var tasksToPersist types.TaskList
 
 	id := 1
@@ -95,7 +95,7 @@ func (r *repository) CreateAll(tasks types.TaskList) (types.TaskList, error) {
 }
 
 // DeleteAll deletes all tasks that have been persisted, returns error if an error occurs
-func (r *repository) DeleteAll() error {
+func (r *taskRepository) DeleteAll() error {
 	err := r.file.OverwriteContents("")
 	if err != nil {
 		return errors.New(errorRepositoryErrorDeletingTasks)

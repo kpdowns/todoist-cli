@@ -12,7 +12,7 @@ Please familiarize yourself with the planned functionality for the Todoist-cli (
 - ~~Listing of tasks across all projects on Todoist.com~~
 - Listing of tasks in a specific project
 - Listing of all projects on Todoist.com
-- Associating internal ids with Todoist tasks and projects to allow for easier management
+- ~~Associating internal ids with Todoist tasks and projects to allow for easier management~~
 - Allow creation of projects
 - Allow deletion of projects
 - ~~Allow creation of basic tasks (with no priority or defined project)~~

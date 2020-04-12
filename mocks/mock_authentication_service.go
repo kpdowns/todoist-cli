@@ -24,7 +24,7 @@ func (s *MockAuthenticationService) GetAccessToken() (*types.AccessToken, error)
 }
 
 // SignIn updates the in-memory access token
-func (s *MockAuthenticationService) SignIn(code string) error {
+func (s *MockAuthenticationService) SignIn(string) error {
 	return s.SignInErrorToReturn
 }
 
@@ -34,6 +34,6 @@ func (s *MockAuthenticationService) SignOut() error {
 }
 
 // GetOauthURL returns the configured oauth url
-func (s *MockAuthenticationService) GetOauthURL(guid string) string {
+func (s *MockAuthenticationService) GetOauthURL(string) string {
 	return s.OathURL
 }

@@ -9,6 +9,6 @@ type MockAuthenticationServer struct {
 }
 
 // StartTemporaryServerToListenForResponse returns the configured state and response
-func (s *MockAuthenticationServer) StartTemporaryServerToListenForResponse(guid string) (*types.AuthenticationResponse, error) {
+func (s *MockAuthenticationServer) StartTemporaryServerToListenForResponse(string) (*types.AuthenticationResponse, error) {
 	return &s.AuthenticationResponseToReturn, s.AuthenticationResponseErrorToReturn
 }

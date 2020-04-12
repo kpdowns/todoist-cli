@@ -13,7 +13,7 @@ type Task struct {
 	Checked   int16
 	Content   string
 	DueDate   time.Time
-	Priority  int16
+	Priority  int
 }
 
 // AsString returns a tab delimited string representing the task

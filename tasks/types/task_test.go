@@ -9,33 +9,33 @@ func TestGivenATaskWhenConvertingToStringThenThePriorityIsAStringCorrespondingTo
 	}{
 		{
 			Task{
-				TodoistID: 1,
-				Priority:  1,
-				Content:   "test",
+				ID:       1,
+				Priority: 1,
+				Content:  "test",
 			},
 			"1\tLow\ttest",
 		},
 		{
 			Task{
-				TodoistID: 2,
-				Priority:  2,
-				Content:   "test2",
+				ID:       2,
+				Priority: 2,
+				Content:  "test2",
 			},
 			"2\tNormal\ttest2",
 		},
 		{
 			Task{
-				TodoistID: 3,
-				Priority:  3,
-				Content:   "test3",
+				ID:       3,
+				Priority: 3,
+				Content:  "test3",
 			},
 			"3\tUrgent\ttest3",
 		},
 		{
 			Task{
-				TodoistID: 4,
-				Priority:  4,
-				Content:   "test4",
+				ID:       4,
+				Priority: 4,
+				Content:  "test4",
 			},
 			"4\tVery Urgent\ttest4",
 		},

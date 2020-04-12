@@ -15,6 +15,7 @@ const (
 
 	errorNotCurrentlyAuthenticated = "Error, you are not currently logged in"
 	errorContentNotProvided        = "Error, content must be provided when creating a task"
+	errorInvalidPriority           = "Error, the provided priority is not valid"
 	errorTaskNotAdded              = "Error, the task could not be added, please try again later"
 )
 
@@ -59,6 +60,10 @@ func NewAddTaskCommand(o io.Writer, a authentication.Service, t services.TaskSer
 func execute(d *dependencies, content string, due string, priority int) error {
 	if content == "" {
 		return errors.New(errorContentNotProvided)
+	}
+
+	if !((priority <= 4) && (priority >= 1)) {
+		return errors.New(errorInvalidPriority)
 	}
 
 	isAuthenticated, _ := d.authenticationService.IsAuthenticated()

@@ -6,9 +6,10 @@ import (
 	"testing"
 
 	"github.com/kpdowns/todoist-cli/mocks"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T) {
+func TestNotAuthenticated(t *testing.T) {
 	mockAuthenticationService := &mocks.MockAuthenticationService{
 		AuthenticatedStateToReturn: false,
 	}
@@ -21,75 +22,89 @@ func TestIfNotAuthenticatedThenReceiveNotAuthenticatedErrorMessage(t *testing.T)
 
 	addTaskCommand.Execute()
 
-	textExpectedToBeWrittenToConsole := errorNotCurrentlyAuthenticated
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
+	assert.Equal(t, errorNotCurrentlyAuthenticated, mockOutputStream.String())
 }
 
-func TestWhenContentIsNotProvidedThenErrorIsThrown(t *testing.T) {
-	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AuthenticatedStateToReturn: false,
-	}
-	mockOutputStream := &bytes.Buffer{}
+func TestInputParameters(t *testing.T) {
 
-	addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, nil)
-	addTaskCommand.Execute()
+	t.Run("If the priority is not valid, then an error stating so is written to the console", func(t *testing.T) {
 
-	textExpectedToBeWrittenToConsole := errorContentNotProvided
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
-}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: false,
+		}
+		mockOutputStream := &bytes.Buffer{}
 
-func TestWhenContentIsProvidedAndErrorOccursWhileAddingTaskThenTaskWasNotAdded(t *testing.T) {
-	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AuthenticatedStateToReturn: true,
-	}
-	mockOutputStream := &bytes.Buffer{}
-	mockTaskService := &mocks.MockTaskService{
-		AddTaskFunctionToExecute: func(content string, due string, priority int) error {
-			return errors.New("error while adding task")
-		},
-	}
+		addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, nil)
+		addTaskCommand.SetArgs([]string{
+			`-content="test"`,
+			`-p=5`,
+		})
 
-	addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, mockTaskService)
-	addTaskCommand.SetArgs([]string{
-		`-c="test content"`,
+		addTaskCommand.Execute()
+
+		assert.Equal(t, errorInvalidPriority, mockOutputStream.String())
+
 	})
 
-	addTaskCommand.Execute()
+	t.Run("If no content is provided, then an error stating so is written to the console", func(t *testing.T) {
 
-	textExpectedToBeWrittenToConsole := errorTaskNotAdded
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: false,
+		}
+		mockOutputStream := &bytes.Buffer{}
+
+		addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, nil)
+		addTaskCommand.Execute()
+
+		assert.Equal(t, errorContentNotProvided, mockOutputStream.String())
+
+	})
 }
 
-func TestWhenContentIsProvidedAndNoErrorsOccurThenTaskWasAdded(t *testing.T) {
-	mockAuthenticationService := &mocks.MockAuthenticationService{
-		AuthenticatedStateToReturn: true,
-	}
-	mockOutputStream := &bytes.Buffer{}
-	mockTaskService := &mocks.MockTaskService{
-		AddTaskFunctionToExecute: func(content string, due string, priority int) error {
-			return nil
-		},
-	}
+func TestAddingATask(t *testing.T) {
 
-	addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, mockTaskService)
-	addTaskCommand.SetArgs([]string{
-		`-c="test content"`,
+	t.Run("When creating a task and an error occurs, an error stating that the task wasn't added is written to console", func(t *testing.T) {
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+		mockOutputStream := &bytes.Buffer{}
+		mockTaskService := &mocks.MockTaskService{
+			AddTaskFunctionToExecute: func(content string, due string, priority int) error {
+				return errors.New("error while adding task")
+			},
+		}
+
+		addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, mockTaskService)
+		addTaskCommand.SetArgs([]string{
+			`-c="test content"`,
+		})
+
+		addTaskCommand.Execute()
+
+		assert.Equal(t, errorTaskNotAdded, mockOutputStream.String())
+
 	})
 
-	addTaskCommand.Execute()
+	t.Run("When creating a task and no error occurs, then a message stating that the task was created is written to console", func(t *testing.T) {
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+		mockOutputStream := &bytes.Buffer{}
+		mockTaskService := &mocks.MockTaskService{
+			AddTaskFunctionToExecute: func(content string, due string, priority int) error {
+				return nil
+			},
+		}
 
-	textExpectedToBeWrittenToConsole := successfullyAddedTask
-	textThatWasWrittenToConsole := mockOutputStream.String()
-	if textExpectedToBeWrittenToConsole != textThatWasWrittenToConsole {
-		t.Errorf("Expected '%s' to be written to output stream, received '%s'", textExpectedToBeWrittenToConsole, textThatWasWrittenToConsole)
-	}
+		addTaskCommand := NewAddTaskCommand(mockOutputStream, mockAuthenticationService, mockTaskService)
+		addTaskCommand.SetArgs([]string{
+			`-c="test content"`,
+		})
+
+		addTaskCommand.Execute()
+
+		assert.Equal(t, successfullyAddedTask, mockOutputStream.String())
+
+	})
+
 }

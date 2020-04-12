@@ -7,6 +7,7 @@ import (
 
 // Task is an item to do
 type Task struct {
+	ID        TaskID
 	TodoistID int64
 	DayOrder  int32
 	Checked   int16
@@ -20,9 +21,9 @@ func (i *Task) AsString() string {
 	priorityString := ""
 	switch priority := i.Priority; priority {
 	case 4:
-		priorityString = "High"
+		priorityString = "Very Urgent"
 	case 3:
-		priorityString = "Medium"
+		priorityString = "Urgent"
 	case 2:
 		priorityString = "Normal"
 	case 1:

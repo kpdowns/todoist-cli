@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 // Task is an item to do
@@ -21,13 +23,13 @@ func (i *Task) AsString() string {
 	priorityString := ""
 	switch priority := i.Priority; priority {
 	case 4:
-		priorityString = "Very Urgent"
+		priorityString = color.RedString("Very Urgent")
 	case 3:
-		priorityString = "Urgent"
+		priorityString = color.YellowString("Urgent")
 	case 2:
-		priorityString = "Normal"
+		priorityString = color.BlueString("Normal")
 	case 1:
-		priorityString = "Low"
+		priorityString = color.WhiteString("Low")
 	}
 
 	return fmt.Sprintf("%d\t%s\t%s",

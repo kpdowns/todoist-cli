@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/beevik/guid"
+	"github.com/fatih/color"
 	"github.com/kpdowns/todoist-cli/actions/login"
 	"github.com/kpdowns/todoist-cli/actions/logout"
 	"github.com/kpdowns/todoist-cli/actions/tasks"
@@ -37,7 +38,7 @@ func Initialize() error {
 		panic("Cannot determine the location todoist-cli is running from")
 	}
 
-	outputStream := os.Stdout
+	outputStream := color.Output
 	api := todoist.NewAPI(*config)
 
 	authenticationFilePath := fmt.Sprintf("%s/authentication.data", currentExecutablePath)

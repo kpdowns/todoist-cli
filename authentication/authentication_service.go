@@ -45,7 +45,7 @@ func NewAuthenticationService(api todoist.API, repository Repository, config con
 	}
 }
 
-// IsAuthenticated checks whether the Todoist-cli is authenticated or not
+// IsAuthenticated checks whether the todoist-cli is authenticated or not
 func (s *service) IsAuthenticated() (bool, error) {
 	accessToken, err := s.repository.GetAccessToken()
 	if err != nil {

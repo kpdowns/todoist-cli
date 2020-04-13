@@ -13,7 +13,7 @@ type MockAuthenticationService struct {
 	OathURL                      string
 }
 
-// IsAuthenticated checks whether the Todoist-cli is authenticated or not by examining the in-memory access token
+// IsAuthenticated checks whether the todoist-cli is authenticated or not by examining the in-memory access token
 func (s *MockAuthenticationService) IsAuthenticated() (bool, error) {
 	return s.AuthenticatedStateToReturn, s.IsAuthenticatedErrorToReturn
 }

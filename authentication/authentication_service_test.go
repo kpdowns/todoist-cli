@@ -23,19 +23,17 @@ func TestGeneratingOauthURL(t *testing.T) {
 		}
 		mockServer := &mocks.MockAuthenticationServer{}
 		configuration := &config.TodoistCliConfiguration{
-			Client: config.ClientConfiguration{
-				TodoistURL:          "url",
-				ClientID:            "clientId",
-				RequiredPermissions: "permissions",
-			},
+			TodoistURL:          "url",
+			ClientID:            "clientId",
+			RequiredPermissions: "permissions",
 		}
 
 		service := NewAuthenticationService(mockAPI, mockRepository, *configuration, mockServer)
 
 		expectedURL := fmt.Sprintf("%s/oauth/authorize?client_id=%s&scope=%s&state=%s",
-			configuration.Client.TodoistURL,
-			configuration.Client.ClientID,
-			configuration.Client.RequiredPermissions,
+			configuration.TodoistURL,
+			configuration.ClientID,
+			configuration.RequiredPermissions,
 			guid)
 		generatedOathURL := service.GetOauthURL(guid)
 
@@ -55,11 +53,9 @@ func TestAccessTokenBeingSetDeterminesWhetherClientIsAuthenticated(t *testing.T)
 		}
 		mockServer := &mocks.MockAuthenticationServer{}
 		configuration := &config.TodoistCliConfiguration{
-			Client: config.ClientConfiguration{
-				TodoistURL:          "url",
-				ClientID:            "clientId",
-				RequiredPermissions: "permissions",
-			},
+			TodoistURL:          "url",
+			ClientID:            "clientId",
+			RequiredPermissions: "permissions",
 		}
 
 		service := NewAuthenticationService(mockAPI, mockRepository, *configuration, mockServer)
@@ -77,11 +73,9 @@ func TestAccessTokenBeingSetDeterminesWhetherClientIsAuthenticated(t *testing.T)
 		}
 		mockServer := &mocks.MockAuthenticationServer{}
 		configuration := &config.TodoistCliConfiguration{
-			Client: config.ClientConfiguration{
-				TodoistURL:          "url",
-				ClientID:            "clientId",
-				RequiredPermissions: "permissions",
-			},
+			TodoistURL:          "url",
+			ClientID:            "clientId",
+			RequiredPermissions: "permissions",
 		}
 
 		service := NewAuthenticationService(mockAPI, mockRepository, *configuration, mockServer)
@@ -103,11 +97,9 @@ func TestSigningIn(t *testing.T) {
 		}
 		mockServer := &mocks.MockAuthenticationServer{}
 		configuration := &config.TodoistCliConfiguration{
-			Client: config.ClientConfiguration{
-				TodoistURL:          "url",
-				ClientID:            "clientId",
-				RequiredPermissions: "permissions",
-			},
+			TodoistURL:          "url",
+			ClientID:            "clientId",
+			RequiredPermissions: "permissions",
 		}
 
 		service := NewAuthenticationService(mockAPI, mockRepository, *configuration, mockServer)

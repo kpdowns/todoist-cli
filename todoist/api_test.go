@@ -18,9 +18,7 @@ import (
 )
 
 func TestRetrievingAccessTokens(t *testing.T) {
-	config := config.TodoistCliConfiguration{
-		Client: config.ClientConfiguration{},
-	}
+	config := config.TodoistCliConfiguration{}
 
 	t.Run("When retrieving an access token and the Todoist API is unavailable, then an error is returned", func(t *testing.T) {
 
@@ -106,9 +104,7 @@ func TestRetrievingAccessTokens(t *testing.T) {
 }
 
 func TestRevokingAccessToken(t *testing.T) {
-	config := config.TodoistCliConfiguration{
-		Client: config.ClientConfiguration{},
-	}
+	config := config.TodoistCliConfiguration{}
 
 	t.Run("When revoking an access token and no token is provided, then an error is returned", func(t *testing.T) {
 
@@ -176,9 +172,7 @@ func TestRevokingAccessToken(t *testing.T) {
 }
 
 func TestExecutingSyncQueries(t *testing.T) {
-	config := config.TodoistCliConfiguration{
-		Client: config.ClientConfiguration{},
-	}
+	config := config.TodoistCliConfiguration{}
 
 	t.Run("When executing a sync query and the Todoist API is unavailable, then an error is returned", func(t *testing.T) {
 
@@ -270,9 +264,7 @@ func TestExecutingSyncQueries(t *testing.T) {
 }
 
 func TestExecutingSyncCommands(t *testing.T) {
-	config := config.TodoistCliConfiguration{
-		Client: config.ClientConfiguration{},
-	}
+	config := config.TodoistCliConfiguration{}
 
 	t.Run("When executing a sync command and the Todoist API is unavailable, then an error is returned", func(t *testing.T) {
 

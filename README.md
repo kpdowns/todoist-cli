@@ -28,11 +28,9 @@ To get started developing the todoist-cli please make sure that you have:
 - At least Go version 1.14 installed.
 
 ### Configuration
-The todoist-cli loads configuration files from the configuration files located in `./config.yml`. A sample configuration is provided in `./config.sample.yml`. Please update the sample configuration file and rename it to `config.yml` in order for the todoist-cli to read it.
+The todoist-cli loads configuration from both `./config/todoist_cli_configuration.go` and `./config/secrets/secrets.go` (this file is not committed to source control for obvious reasons). Before starting development, please make a copy of the file located `./config/secrets/secrets.sample` and rename it to be `secrets.go`. You will then be able to set the values after registering an application on Todoist at https://developer.todoist.com/.
 
-The values used in the configuration file can be found after registering an application on Todoist at https://developer.todoist.com/.
-
-> Please do not commit your version of the `config.yml` file to source control. Doing so will leak sensitive configuration details of your Todoist application.
+> Please do not commit your version of the `secrets.go` file to source control. Doing so will leak sensitive configuration details of your Todoist application. To make it simpler to not make this mistake, this file is explicitly excluded in the `.gitignore`.
 
 ### Building the cli
 For convenience, a launch configuration for Visual Studio Code is provided that will allow you to get started debugging immediately.
@@ -43,7 +41,7 @@ To build an executable version that can be shipped you can run the following com
 go build -ldflags="-s -w"
 ```
 
-This will create an executable that can be shipped with a version of the `config.yml` file so that your application can be run.
+This will create an executable that can be released.
 
 ### Running tests
 In order to run the tests for the todoist-cli, you can run the following command in the root directory.

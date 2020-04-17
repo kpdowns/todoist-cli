@@ -27,11 +27,7 @@ func Initialize() error {
 		Long:  "todoist-cli is a tool that allows you to interact with Todoist.com directly from the command line without using a browser.",
 	}
 
-	config, err := config.LoadConfiguration()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
-	}
+	config := config.LoadConfiguration()
 
 	currentExecutablePath, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {

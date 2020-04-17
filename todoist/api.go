@@ -45,11 +45,11 @@ func NewAPI(config config.TodoistCliConfiguration) API {
 // GetAccessToken returns the bearer token provided by the Todoist API while authenticating
 func (a *api) GetAccessToken(code string) (*responses.AccessToken, error) {
 	accessTokenURL := fmt.Sprintf("%s/oauth/access_token?client_id=%s&client_secret=%s&code=%s&redirect_uri=%s",
-		a.config.Client.TodoistURL,
-		a.config.Client.ClientID,
-		a.config.Client.ClientSecret,
+		a.config.TodoistURL,
+		a.config.ClientID,
+		a.config.ClientSecret,
 		code,
-		a.config.Client.OauthRedirectURL,
+		a.config.OauthRedirectURL,
 	)
 
 	var buffer []byte
@@ -79,11 +79,11 @@ func (a *api) RevokeAccessToken(accessToken string) error {
 		return errors.New(errorRevokingAccessToken)
 	}
 
-	revokeAccessTokenURL := fmt.Sprintf("%s/sync/v8/access_tokens/revoke", a.config.Client.TodoistURL)
+	revokeAccessTokenURL := fmt.Sprintf("%s/sync/v8/access_tokens/revoke", a.config.TodoistURL)
 
 	requestBody := &requests.RevokeAccessToken{
-		ClientID:     a.config.Client.ClientID,
-		ClientSecret: a.config.Client.ClientSecret,
+		ClientID:     a.config.ClientID,
+		ClientSecret: a.config.ClientSecret,
 		AccessToken:  accessToken,
 	}
 
@@ -107,7 +107,7 @@ func (a *api) RevokeAccessToken(accessToken string) error {
 
 // ExecuteSyncQuery executes a query against Todoist and returns the response
 func (a *api) ExecuteSyncQuery(query requests.Query) (*responses.Query, error) {
-	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, query.ToQueryString())
+	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.TodoistURL, query.ToQueryString())
 
 	var buffer []byte
 	response, err := rest.Post(url, "application/json", bytes.NewBuffer(buffer))
@@ -131,7 +131,7 @@ func (a *api) ExecuteSyncQuery(query requests.Query) (*responses.Query, error) {
 
 // ExecuteSyncCommand executes a command against Todoist and returns the response
 func (a *api) ExecuteSyncCommand(command requests.Command) error {
-	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.Client.TodoistURL, command.ToQueryString())
+	url := fmt.Sprintf("%s/sync/v8/sync?%s", a.config.TodoistURL, command.ToQueryString())
 
 	response, err := rest.Get(url)
 	if err != nil {

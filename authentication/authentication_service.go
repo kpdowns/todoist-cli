@@ -117,8 +117,8 @@ func (s *service) SignOut() error {
 // GetOauthURL generates a URL with provided guid as a CSRF protection token
 func (s *service) GetOauthURL(guid string) string {
 	return fmt.Sprintf("%s/oauth/authorize?client_id=%s&scope=%s&state=%s",
-		s.config.Client.TodoistURL,
-		s.config.Client.ClientID,
-		s.config.Client.RequiredPermissions,
+		s.config.TodoistURL,
+		s.config.ClientID,
+		s.config.RequiredPermissions,
 		guid)
 }

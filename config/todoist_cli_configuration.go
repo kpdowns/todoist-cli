@@ -14,6 +14,8 @@ type TodoistCliConfiguration struct {
 
 // LoadConfiguration loads the configuration file located in ./config.yml, emits an error if the configuration file is not valid
 func LoadConfiguration() *TodoistCliConfiguration {
+	secrets := secrets.GetSecrets()
+
 	return &TodoistCliConfiguration{
 		TodoistURL:          "https://todoist.com",
 		ClientID:            secrets.ClientID,

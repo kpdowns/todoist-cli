@@ -7,7 +7,6 @@ import (
 
 	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/kpdowns/todoist-cli/tasks/services"
-	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/spf13/cobra"
 )
 
@@ -39,7 +38,7 @@ func NewCompleteTaskCommand(o io.Writer, a authentication.Service, t services.Ta
 		Long:  "Flag a task as completed given a task id",
 		Args:  cobra.OnlyValidArgs,
 		Run: func(command *cobra.Command, args []string) {
-			err := execute(dependencies, taskID)
+			err := execute(dependencies, uint32(taskID))
 			if err != nil {
 				fmt.Fprint(o, err.Error())
 			}
@@ -51,13 +50,13 @@ func NewCompleteTaskCommand(o io.Writer, a authentication.Service, t services.Ta
 	return completeTaskCommand
 }
 
-func execute(d *dependencies, taskID int) error {
+func execute(d *dependencies, taskID uint32) error {
 	isAuthenticated, _ := d.authenticationService.IsAuthenticated()
 	if !isAuthenticated {
 		return errors.New(errorNotCurrentlyAuthenticated)
 	}
 
-	err := d.taskService.CompleteTask(types.TaskID(taskID))
+	err := d.taskService.CompleteTask(taskID)
 	if err != nil {
 		return errors.New(errorFailedToCompleteTask)
 	}

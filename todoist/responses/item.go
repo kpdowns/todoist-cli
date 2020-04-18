@@ -13,7 +13,7 @@ type Item struct {
 	Checked   int16  `json:"checked"`
 	Content   string `json:"content"`
 	Due       *Due   `json:"due"`
-	Priority  int    `json:"priority"`
+	Priority  int16  `json:"priority"`
 }
 
 // ToTask converts the item into a domain task

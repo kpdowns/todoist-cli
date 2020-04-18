@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/beevik/guid"
+	"github.com/kpdowns/todoist-cli/todoist/requests/commands"
 )
 
 // Command contains commands to execute against Todoist
@@ -16,14 +17,14 @@ type Command struct {
 
 // CommandDetail is an individual command to be executed
 type CommandDetail struct {
-	Type        CommandType            `json:"type"`
+	Type        commands.CommandType   `json:"type"`
 	TemporaryID string                 `json:"temp_id"`
 	UUID        string                 `json:"uuid"`
 	Arguments   map[string]interface{} `json:"args"`
 }
 
 // NewCommand creates a new instance of a Todoist Sync Command
-func NewCommand(token string, commandType CommandType, arguments map[string]interface{}) Command {
+func NewCommand(token string, commandType commands.CommandType, arguments map[string]interface{}) Command {
 	return Command{
 		Token: token,
 		Commands: []CommandDetail{

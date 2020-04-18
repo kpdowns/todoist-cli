@@ -8,6 +8,7 @@ import (
 	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/kpdowns/todoist-cli/todoist"
 	"github.com/kpdowns/todoist-cli/todoist/requests"
+	"github.com/kpdowns/todoist-cli/todoist/requests/commands"
 )
 
 const (
@@ -22,7 +23,7 @@ const (
 type TaskService interface {
 	GetAllTasks() (types.TaskList, error)
 	AddTask(content string, due string, priority int) error
-	CompleteTask(types.TaskID) error
+	CompleteTask(taskID uint32) error
 }
 
 type taskService struct {
@@ -96,7 +97,7 @@ func (s *taskService) AddTask(content string, due string, priority int) error {
 		arguments["priority"] = priority
 	}
 
-	command := requests.NewCommand(accessToken.AccessToken, "item_add", arguments)
+	command := requests.NewCommand(accessToken.AccessToken, commands.ItemAdd, arguments)
 	err = s.api.ExecuteSyncCommand(command)
 	if err != nil {
 		return errors.New(errorOccurredDuringSyncOperation)
@@ -105,7 +106,7 @@ func (s *taskService) AddTask(content string, due string, priority int) error {
 	return nil
 }
 
-func (s *taskService) CompleteTask(taskID types.TaskID) error {
+func (s *taskService) CompleteTask(taskID uint32) error {
 	isAuthenticated, err := s.authenticationService.IsAuthenticated()
 	if err != nil || !isAuthenticated {
 		return errors.New(errorNotCurrentlyAuthenticated)
@@ -120,7 +121,7 @@ func (s *taskService) CompleteTask(taskID types.TaskID) error {
 
 	arguments := make(map[string]interface{})
 	arguments["id"] = taskToComplete.TodoistID
-	command := requests.NewCommand(accessToken.AccessToken, "item_close", arguments)
+	command := requests.NewCommand(accessToken.AccessToken, commands.ItemClose, arguments)
 	err = s.api.ExecuteSyncCommand(command)
 	if err != nil {
 		return errors.New(errorFailedToCompleteTask)

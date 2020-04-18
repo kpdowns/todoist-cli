@@ -243,7 +243,7 @@ func TestCompletingATask(t *testing.T) {
 
 		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
 
-		err := taskService.CompleteTask(types.TaskID(1))
+		err := taskService.CompleteTask(1)
 		assert.NotNil(t, err)
 		assert.Equal(t, errorNotCurrentlyAuthenticated, err.Error())
 
@@ -253,7 +253,7 @@ func TestCompletingATask(t *testing.T) {
 
 		mockAPI := &mocks.MockAPI{}
 		mockRepository := &mocks.MockTaskRepository{
-			GetFunc: func(types.TaskID) (*types.Task, error) {
+			GetFunc: func(uint32) (*types.Task, error) {
 				return nil, errors.New("Test error")
 			},
 		}
@@ -263,7 +263,7 @@ func TestCompletingATask(t *testing.T) {
 
 		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
 
-		err := taskService.CompleteTask(types.TaskID(1))
+		err := taskService.CompleteTask(1)
 		assert.NotNil(t, err)
 		assert.Equal(t, errorNoTaskToComplete, err.Error())
 
@@ -272,9 +272,9 @@ func TestCompletingATask(t *testing.T) {
 	t.Run("When completing a task, and the task exists, if when calling the API to complete the task an error occurs then an error is returned", func(t *testing.T) {
 
 		mockRepository := &mocks.MockTaskRepository{
-			GetFunc: func(types.TaskID) (*types.Task, error) {
+			GetFunc: func(uint32) (*types.Task, error) {
 				return &types.Task{
-					ID: types.TaskID(1),
+					ID: 1,
 				}, nil
 			},
 		}
@@ -289,7 +289,7 @@ func TestCompletingATask(t *testing.T) {
 
 		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
 
-		err := taskService.CompleteTask(types.TaskID(1))
+		err := taskService.CompleteTask(1)
 		assert.NotNil(t, err)
 		assert.Equal(t, errorFailedToCompleteTask, err.Error())
 
@@ -298,9 +298,9 @@ func TestCompletingATask(t *testing.T) {
 	t.Run("When completing a task, and the task exists, no error occurs while calling the Todoist API, then no error is returned", func(t *testing.T) {
 
 		mockRepository := &mocks.MockTaskRepository{
-			GetFunc: func(types.TaskID) (*types.Task, error) {
+			GetFunc: func(uint32) (*types.Task, error) {
 				return &types.Task{
-					ID: types.TaskID(1),
+					ID: 1,
 				}, nil
 			},
 		}
@@ -315,7 +315,7 @@ func TestCompletingATask(t *testing.T) {
 
 		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
 
-		err := taskService.CompleteTask(types.TaskID(1))
+		err := taskService.CompleteTask(1)
 		assert.Nil(t, err)
 
 	})

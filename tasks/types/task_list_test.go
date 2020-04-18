@@ -3,6 +3,8 @@ package types
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGivenListOfTasksWhenSortingTasksThenListOfTasksIsOrderedByDueDateThenPriority(t *testing.T) {
@@ -35,17 +37,11 @@ func TestGivenListOfTasksWhenSortingTasksThenListOfTasksIsOrderedByDueDateThenPr
 	}
 
 	sortedTasks := tasks.SortByDueDateThenSortByPriority()
-	sortedTasks[0].assertTaskHasID(t, 1)
-	sortedTasks[1].assertTaskHasID(t, 2)
-	sortedTasks[2].assertTaskHasID(t, 3)
-	sortedTasks[3].assertTaskHasID(t, 4)
-	sortedTasks[4].assertTaskHasID(t, 5)
-}
-
-func (task *Task) assertTaskHasID(t *testing.T, id int64) {
-	if task.TodoistID != id {
-		t.Errorf("Expected task to have id of %d, instead had id of %d", id, task.TodoistID)
-	}
+	assert.Equal(t, sortedTasks[0].TodoistID, int64(1))
+	assert.Equal(t, sortedTasks[1].TodoistID, int64(2))
+	assert.Equal(t, sortedTasks[2].TodoistID, int64(3))
+	assert.Equal(t, sortedTasks[3].TodoistID, int64(4))
+	assert.Equal(t, sortedTasks[4].TodoistID, int64(5))
 }
 
 func getDateDisregardingError(dateString string) time.Time {

@@ -18,7 +18,7 @@ const (
 // TaskRepository handles persisting the task with the cli's own internal identifier
 type TaskRepository interface {
 	GetAll() (types.TaskList, error)
-	Get(types.TaskID) (*types.Task, error)
+	Get(uint32) (*types.Task, error)
 	CreateAll(types.TaskList) (types.TaskList, error)
 	DeleteAll() error
 }
@@ -51,7 +51,7 @@ func (r *taskRepository) GetAll() (types.TaskList, error) {
 }
 
 // Get retrieves a single task with the provided id, error if the task does not exist
-func (r *taskRepository) Get(taskID types.TaskID) (*types.Task, error) {
+func (r *taskRepository) Get(taskID uint32) (*types.Task, error) {
 	tasks, err := r.GetAll()
 	if err != nil {
 		return nil, errors.New(errorRepositoryNotAbleToGetTask)
@@ -70,10 +70,10 @@ func (r *taskRepository) Get(taskID types.TaskID) (*types.Task, error) {
 func (r *taskRepository) CreateAll(tasks types.TaskList) (types.TaskList, error) {
 	var tasksToPersist types.TaskList
 
-	id := 1
+	id := uint32(1)
 	for _, task := range tasks {
 		taskToPersist := types.Task{
-			ID:        types.TaskID(id),
+			ID:        id,
 			Checked:   task.Checked,
 			Content:   task.Content,
 			DayOrder:  task.DayOrder,

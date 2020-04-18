@@ -7,7 +7,7 @@ import (
 // MockTaskRepository provides overrides for the functions of the repository for testing purposes
 type MockTaskRepository struct {
 	GetAllFunc    func() (types.TaskList, error)
-	GetFunc       func(types.TaskID) (*types.Task, error)
+	GetFunc       func(uint32) (*types.Task, error)
 	CreateAllFunc func(types.TaskList) (types.TaskList, error)
 	DeleteAllFunc func() error
 }
@@ -18,7 +18,7 @@ func (r *MockTaskRepository) GetAll() (types.TaskList, error) {
 }
 
 // Get retrieves a single task with the provided id, error if the task does not exist
-func (r *MockTaskRepository) Get(taskID types.TaskID) (*types.Task, error) {
+func (r *MockTaskRepository) Get(taskID uint32) (*types.Task, error) {
 	return r.GetFunc(taskID)
 }
 

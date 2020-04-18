@@ -84,7 +84,7 @@ func TestGettingAnIndividualTask(t *testing.T) {
 
 		repository := NewTaskRepository(inMemoryFile)
 
-		tasks, err := repository.Get(types.TaskID(1))
+		tasks, err := repository.Get(1)
 		assert.Equal(t, errorRepositoryNotAbleToGetTask, err.Error())
 		assert.NotNil(t, err)
 		assert.Nil(t, tasks)
@@ -128,7 +128,7 @@ func TestGettingAnIndividualTask(t *testing.T) {
 
 		repository := NewTaskRepository(inMemoryFile)
 
-		task, err := repository.Get(types.TaskID(1))
+		task, err := repository.Get(1)
 		assert.NotNil(t, err)
 		assert.Equal(t, errorRepositoryTaskNotFound, err.Error())
 		assert.Nil(t, task)
@@ -160,9 +160,9 @@ func TestPersistingAllTasks(t *testing.T) {
 
 		var tasksAfterBeingWritten types.TaskList
 		json.Unmarshal([]byte(inMemoryFile.Contents), &tasksAfterBeingWritten)
-		assert.Equal(t, types.TaskID(1), tasksAfterBeingWritten[0].ID)
+		assert.Equal(t, uint32(1), tasksAfterBeingWritten[0].ID)
 		assert.Equal(t, int64(100), tasksAfterBeingWritten[0].TodoistID)
-		assert.Equal(t, types.TaskID(2), tasksAfterBeingWritten[1].ID)
+		assert.Equal(t, uint32(2), tasksAfterBeingWritten[1].ID)
 		assert.Equal(t, int64(200), tasksAfterBeingWritten[1].TodoistID)
 
 	})

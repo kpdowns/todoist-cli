@@ -9,13 +9,13 @@ import (
 
 // Task is an item to do
 type Task struct {
-	ID        TaskID
+	ID        uint32
 	TodoistID int64
 	DayOrder  int32
 	Checked   int16
 	Content   string
 	DueDate   time.Time
-	Priority  int
+	Priority  int16
 }
 
 // AsString returns a tab delimited string representing the task

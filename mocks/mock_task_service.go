@@ -6,7 +6,7 @@ import "github.com/kpdowns/todoist-cli/tasks/types"
 type MockTaskService struct {
 	GetAllTasksFunctionToExecute func() (types.TaskList, error)
 	AddTaskFunctionToExecute     func(content string, due string, priority int) error
-	CompleteTaskFunc             func(types.TaskID) error
+	CompleteTaskFunc             func(uint32) error
 }
 
 // AddTask executes the function configured in GetAllTasksFunctionToExecute
@@ -26,7 +26,7 @@ func (s *MockTaskService) GetAllTasks() (types.TaskList, error) {
 }
 
 // CompleteTask executes the function configured in CompleteTaskFunc
-func (s *MockTaskService) CompleteTask(taskID types.TaskID) error {
+func (s *MockTaskService) CompleteTask(taskID uint32) error {
 	if s.CompleteTaskFunc != nil {
 		return s.CompleteTaskFunc(taskID)
 	}

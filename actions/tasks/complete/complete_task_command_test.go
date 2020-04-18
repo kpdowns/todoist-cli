@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/kpdowns/todoist-cli/tasks/types"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kpdowns/todoist-cli/mocks"
@@ -34,7 +33,7 @@ func TestWrittingToOutputStream(t *testing.T) {
 		mockOutputStream := &bytes.Buffer{}
 
 		mockTaskService := &mocks.MockTaskService{
-			CompleteTaskFunc: func(types.TaskID) error {
+			CompleteTaskFunc: func(uint32) error {
 				return errors.New("Test error")
 			},
 		}
@@ -55,7 +54,7 @@ func TestWrittingToOutputStream(t *testing.T) {
 		mockOutputStream := &bytes.Buffer{}
 
 		mockTaskService := &mocks.MockTaskService{
-			CompleteTaskFunc: func(types.TaskID) error {
+			CompleteTaskFunc: func(uint32) error {
 				return nil
 			},
 		}

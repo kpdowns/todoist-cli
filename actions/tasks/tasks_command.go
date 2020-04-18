@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/kpdowns/todoist-cli/actions/tasks/add"
+	"github.com/kpdowns/todoist-cli/actions/tasks/complete"
 	"github.com/kpdowns/todoist-cli/actions/tasks/list"
 	"github.com/kpdowns/todoist-cli/authentication"
 	"github.com/kpdowns/todoist-cli/tasks/services"
@@ -20,6 +21,7 @@ func NewTasksCommand(o io.Writer, authenticationService authentication.Service, 
 
 	tasksCommand.AddCommand(list.NewListTasksCommand(o, authenticationService, taskService))
 	tasksCommand.AddCommand(add.NewAddTaskCommand(o, authenticationService, taskService))
+	tasksCommand.AddCommand(complete.NewCompleteTaskCommand(o, authenticationService, taskService))
 
 	return tasksCommand
 }

@@ -6,6 +6,7 @@ import "github.com/kpdowns/todoist-cli/tasks/types"
 type MockTaskService struct {
 	GetAllTasksFunctionToExecute func() (types.TaskList, error)
 	AddTaskFunctionToExecute     func(content string, due string, priority int) error
+	CompleteTaskFunc             func(types.TaskID) error
 }
 
 // AddTask executes the function configured in GetAllTasksFunctionToExecute
@@ -22,4 +23,12 @@ func (s *MockTaskService) GetAllTasks() (types.TaskList, error) {
 		return s.GetAllTasksFunctionToExecute()
 	}
 	panic("Method call GetAllTasksFunctionToExecute used but not configured")
+}
+
+// CompleteTask executes the function configured in CompleteTaskFunc
+func (s *MockTaskService) CompleteTask(taskID types.TaskID) error {
+	if s.CompleteTaskFunc != nil {
+		return s.CompleteTaskFunc(taskID)
+	}
+	panic("Method call CompleteTask used but not configured")
 }

@@ -11,15 +11,18 @@ import (
 )
 
 const (
-	errorNotCurrentlyAuthenticated   = "Error, you are not currently logged in"
-	errorOccurredDuringSyncOperation = "Error occurred while syncing with Todoist"
-	errorNoContent                   = "Task content must be provided when adding a task"
+	errorNotCurrentlyAuthenticated   = "Error, you are not currently logged in."
+	errorOccurredDuringSyncOperation = "Error occurred while syncing with Todoist."
+	errorNoContent                   = "Task content must be provided when adding a task."
+	errorNoTaskToComplete            = "The requested task does not exist."
+	errorFailedToCompleteTask        = "An error occurred while flagging the task as completed on Todoist, please try again."
 )
 
-// TaskService provides functionality to handle the access token used by the Todoist API
+// TaskService provides functionality to retrieve and update tasks on Todoist
 type TaskService interface {
 	GetAllTasks() (types.TaskList, error)
 	AddTask(content string, due string, priority int) error
+	CompleteTask(types.TaskID) error
 }
 
 type taskService struct {
@@ -97,6 +100,30 @@ func (s *taskService) AddTask(content string, due string, priority int) error {
 	err = s.api.ExecuteSyncCommand(command)
 	if err != nil {
 		return errors.New(errorOccurredDuringSyncOperation)
+	}
+
+	return nil
+}
+
+func (s *taskService) CompleteTask(taskID types.TaskID) error {
+	isAuthenticated, err := s.authenticationService.IsAuthenticated()
+	if err != nil || !isAuthenticated {
+		return errors.New(errorNotCurrentlyAuthenticated)
+	}
+
+	accessToken, _ := s.authenticationService.GetAccessToken()
+
+	taskToComplete, err := s.taskRepository.Get(taskID)
+	if err != nil {
+		return errors.New(errorNoTaskToComplete)
+	}
+
+	arguments := make(map[string]interface{})
+	arguments["id"] = taskToComplete.TodoistID
+	command := requests.NewCommand(accessToken.AccessToken, "item_close", arguments)
+	err = s.api.ExecuteSyncCommand(command)
+	if err != nil {
+		return errors.New(errorFailedToCompleteTask)
 	}
 
 	return nil

@@ -230,3 +230,94 @@ func TestAddingANewTask(t *testing.T) {
 	})
 
 }
+
+func TestCompletingATask(t *testing.T) {
+
+	t.Run("When completing a task, and the client is not authenticated, then an error is returned", func(t *testing.T) {
+
+		mockAPI := &mocks.MockAPI{}
+		mockRepository := &mocks.MockTaskRepository{}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: false,
+		}
+
+		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
+
+		err := taskService.CompleteTask(types.TaskID(1))
+		assert.NotNil(t, err)
+		assert.Equal(t, errorNotCurrentlyAuthenticated, err.Error())
+
+	})
+
+	t.Run("When completing a task, and the task does not exist, then an error is returned", func(t *testing.T) {
+
+		mockAPI := &mocks.MockAPI{}
+		mockRepository := &mocks.MockTaskRepository{
+			GetFunc: func(types.TaskID) (*types.Task, error) {
+				return nil, errors.New("Test error")
+			},
+		}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+
+		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
+
+		err := taskService.CompleteTask(types.TaskID(1))
+		assert.NotNil(t, err)
+		assert.Equal(t, errorNoTaskToComplete, err.Error())
+
+	})
+
+	t.Run("When completing a task, and the task exists, if when calling the API to complete the task an error occurs then an error is returned", func(t *testing.T) {
+
+		mockRepository := &mocks.MockTaskRepository{
+			GetFunc: func(types.TaskID) (*types.Task, error) {
+				return &types.Task{
+					ID: types.TaskID(1),
+				}, nil
+			},
+		}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+		mockAPI := &mocks.MockAPI{
+			ExecuteSyncCommandFunction: func(command requests.Command) error {
+				return errors.New("Test error")
+			},
+		}
+
+		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
+
+		err := taskService.CompleteTask(types.TaskID(1))
+		assert.NotNil(t, err)
+		assert.Equal(t, errorFailedToCompleteTask, err.Error())
+
+	})
+
+	t.Run("When completing a task, and the task exists, no error occurs while calling the Todoist API, then no error is returned", func(t *testing.T) {
+
+		mockRepository := &mocks.MockTaskRepository{
+			GetFunc: func(types.TaskID) (*types.Task, error) {
+				return &types.Task{
+					ID: types.TaskID(1),
+				}, nil
+			},
+		}
+		mockAuthenticationService := &mocks.MockAuthenticationService{
+			AuthenticatedStateToReturn: true,
+		}
+		mockAPI := &mocks.MockAPI{
+			ExecuteSyncCommandFunction: func(command requests.Command) error {
+				return nil
+			},
+		}
+
+		taskService := NewTaskService(mockAPI, mockAuthenticationService, mockRepository)
+
+		err := taskService.CompleteTask(types.TaskID(1))
+		assert.Nil(t, err)
+
+	})
+
+}

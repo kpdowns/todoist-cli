@@ -54,4 +54,26 @@ func TestCommandCreation(t *testing.T) {
 
 	})
 
+	t.Run("Sub command to complete task is added", func(t *testing.T) {
+
+		mockOutputStream := &bytes.Buffer{}
+		mockAuthenticationService := &mocks.MockAuthenticationService{}
+		mockTaskService := &mocks.MockTaskService{}
+
+		taskCommand := NewTasksCommand(mockOutputStream, mockAuthenticationService, mockTaskService)
+
+		registeredCommands := taskCommand.Commands()
+
+		found := false
+		for _, registeredCommand := range registeredCommands {
+			if registeredCommand.Use == "complete" {
+				found = true
+				break
+			}
+		}
+
+		assert.True(t, found)
+
+	})
+
 }

@@ -13,8 +13,9 @@ Please familiarize yourself with the planned functionality for the todoist-cli b
 - ~~Associating internal ids with Todoist tasks and projects to allow for easier management~~
 - ~~Allow creation of basic tasks~~
 - ~~Allow creation of tasks with priority and due date~~
-- Allow flagging tasks as completed
+- ~~Allow flagging tasks as completed~~
 - Allow reprioritization of tasks & changing due dates
+
 - Display the project associated with a task
 - Listing of tasks in a specific project
 - Listing of all projects on Todoist.com

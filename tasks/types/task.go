@@ -32,7 +32,7 @@ func (i *Task) AsString() string {
 		priorityString = color.WhiteString("Low")
 	}
 
-	return fmt.Sprintf("[%d] %s\t| %s",
+	return fmt.Sprintf("[%d]\t%s\t%s",
 		i.ID,
 		priorityString,
 		i.Content,

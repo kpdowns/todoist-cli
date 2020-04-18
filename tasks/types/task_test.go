@@ -13,7 +13,7 @@ func TestGivenATaskWhenConvertingToStringThenThePriorityIsAStringCorrespondingTo
 				Priority: 1,
 				Content:  "test",
 			},
-			"[1] Low\t| test",
+			"[1]\tLow\ttest",
 		},
 		{
 			Task{
@@ -21,7 +21,7 @@ func TestGivenATaskWhenConvertingToStringThenThePriorityIsAStringCorrespondingTo
 				Priority: 2,
 				Content:  "test2",
 			},
-			"[2] Normal\t| test2",
+			"[2]\tNormal\ttest2",
 		},
 		{
 			Task{
@@ -29,7 +29,7 @@ func TestGivenATaskWhenConvertingToStringThenThePriorityIsAStringCorrespondingTo
 				Priority: 3,
 				Content:  "test3",
 			},
-			"[3] Urgent\t| test3",
+			"[3]\tUrgent\ttest3",
 		},
 		{
 			Task{
@@ -37,7 +37,7 @@ func TestGivenATaskWhenConvertingToStringThenThePriorityIsAStringCorrespondingTo
 				Priority: 4,
 				Content:  "test4",
 			},
-			"[4] Very Urgent\t| test4",
+			"[4]\tVery Urgent\ttest4",
 		},
 	}
 
